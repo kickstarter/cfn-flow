@@ -1,7 +1,7 @@
 class CfnFlow::Template
-  attr_reader :from
-  def initialize(from)
-    @from = from
+  attr_reader :from, :prefix, :bucket
+  def initialize(from:, prefix:, bucket:)
+    @from, @prefix, @bucket = from, prefix, bucket
   end
 
   def yaml?
@@ -17,8 +17,21 @@ class CfnFlow::Template
     from_data.is_a?(Hash) && from_data.key?('Resources')
   end
 
-  def to
-    from.sub(/\.yml\Z/, '.json')
+  def validate!
+    cfn.validate_template(template_body: to_json)
+  end
+
+  def key
+    # Replace leading './' in from, rename *.yml to *.json
+    File.join(prefix, from.sub(/\A\.\//, '').sub(/\.yml\Z/, '.json'))
+  end
+
+  def upload!
+    s3_object.put(body: to_json)
+  end
+
+  def url
+    s3_object.public_url
   end
 
   def from_data
@@ -33,4 +46,14 @@ class CfnFlow::Template
   def to_json
     @to_json ||= MultiJson.dump(from_data, pretty: true)
   end
+
+  private
+  def cfn
+    @cfn ||= Aws::CloudFormation::Client.new
+  end
+
+  def s3_object
+    @s3_object ||= Aws::S3::Object.new(bucket, key)
+  end
+
 end
