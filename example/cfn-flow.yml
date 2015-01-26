@@ -1,0 +1,6 @@
+# Put this a file named `cfn-flow.yml` in the root of your project
+# All options in this config can be overridden with command line arguments
+---
+bucket: 'my-s3-bucket' # Required S3 bucket
+to: my/s3/prefix # S3 path prefix. Default: /
+from: my/local/prefix # Local source directory for templates. Default: .
