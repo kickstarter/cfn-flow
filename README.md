@@ -10,9 +10,30 @@ gem install cfn-flow
 
 ## Configuration
 
-## Usage
+You can configure cfn-flow defaults by creating a `cfn-flow.yml` file in same
+directory you run `cfn-flow` (presumably the root of your project).
+
+Any settings in the configuration file can be overridden with command line
+arguments.
+
+```
+# `cfn-flow.yml` in the root of your project
+# All options in this config can be overridden with command line arguments
+---
+bucket: 'my-s3-bucket' # S3 bucket where templates are uploaded.
+to: my/s3/prefix # S3 path prefix. Default: '' (empty)
+from: my/local/prefix # Local source directory for templates. Default: .
+```
 
 ## Features
+
+### Get help with command options
+
+```
+cfn-flow help
+```
+
+### YAML > JSON
 
 `cfn-flow` lets you write templates in either JSON or
 [YAML](http://www.yaml.org). YAML is a superset of JSON that allows a terser,
@@ -22,16 +43,10 @@ CloudFormation stacks.
 
 There are two modes for running `cfn-flow`: dev mode, and release mode.
 
-#### Dev mode
+### Dev mode
 
 Dev mode allows you to quickly test template changes. You configure a personal
 dev prefix (by setting the `CFN_FLOW_DEV_NAME` environment variable, or passing the `--dev` command line argument). `cnf-flow` validates all templates and uploads them to your personal prefix, overwriting existing templates.
-
-For example, running
-```
-cfn-flow --dev aaron
-```
-would upload templates to `s3://my-bucket/dev/aaron/*`.
 
 You can launch or update test stacks using your dev template path to quickly test your
 template changes.
@@ -41,7 +56,24 @@ committed to git.
 
 You should only use dev mode for testing & verifying changes in non-production stacks.
 
-#### Release mode
+#### Dev mode usage
+
+Upload templates to `s3://my-bucket/dev/aaron/*`:
+```
+cfn-flow --dev aaron
+```
+
+For brevity, you can set a `CFN_FLOW_DEV_NAME` environment variable and omit the
+`--dev` argument.
+
+```
+export CFN_FLOW_DEV_NAME=aaron
+
+# Equivalent to passing --dev aaron
+cfn-flow
+```
+
+### Release mode
 
 Release mode publishes your templates to a versioned S3 path, and pushes a git
 tag of the version.
@@ -57,6 +89,15 @@ directory, and pushes a `1.0.0` git tag.
 
 Inspecting the differences between versions is possible using `git log` and `git
 diff`.
+
+#### Release mode usage
+
+Upload templates to `s3://my-bucket/release/1.0.0/*` and push a `1.0.0` git tag.
+
+```
+cfn-flow --release 1.0.0
+```
+
 
 ### Using versions with nested stacks
 
