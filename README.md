@@ -122,7 +122,7 @@ resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-pro
    "Type" : "AWS::CloudFormation::Stack",
    "Properties" : {
       "TemplateURL" : {
-        "Fn::Join" : [ ":",r
+        "Fn::Join" : [ ":",
           [ "https://s3.amazonaws.com/my-bucket", {"Ref": "prefix"}, "my-template.json" ]
           ]
       }
@@ -130,4 +130,4 @@ resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-pro
 }
 ```
 
-While testing, set the `prefix` parameter to dev prefix like `dev/aaron`. When you're confident your changes work, release them with cfn-flow and change the `prefix` parameter to `release/1.0.0` for production.
+While testing, set the `prefix` parameter to a dev prefix like `dev/aaron`. When you're confident your changes work, release them with cfn-flow and change the `prefix` parameter to `release/1.0.0` for production.
