@@ -4,6 +4,7 @@ require 'multi_json'
 require 'yaml'
 
 class CfnFlow < Thor
+  class GitError < StandardError; end
 
   require 'cfn-flow/template'
   def self.shared_options
@@ -11,23 +12,35 @@ class CfnFlow < Thor
     method_option :bucket,     type: :string, desc: 'S3 bucket for templates'
     method_option :to,         type: :string, desc: 'S3 path prefix for templates'
     method_option :from,       type: :string, desc: 'Local source directory for templates'
-    method_option :dev, type: :string, desc: 'Personal development prefix'
+    method_option 'dev-name',  type: :string, desc: 'Personal development prefix'
+    method_option :region,     type: :string, desc: 'AWS Region'
 
     method_option :verbose, type: :boolean, desc: 'Verbose output', default: false
   end
 
   no_commands do
     def load_config
-      defaults = { 'prefix' => '', 'from' => '.', 'dev' => ENV['CFN_FLOW_DEV_NAME'] }
+      defaults = { 'from' => '.' }
       file_config = begin
         YAML.load_file('./cfn-flow.yml')
       rescue Errno::ENOENT
         {}
       end
+      env_config = {
+        'bucket'      => ENV['CFN_FLOW_BUCKET'],
+        'to'          => ENV['CFN_FLOW_TO'],
+        'from'        => ENV['CFN_FLOW_FROM'],
+        'dev-name'    => ENV['CFN_FLOW_DEV_NAME'],
+        'region'      => ENV['AWS_REGION']
+      }.delete_if {|_,v| v.nil?}
 
-      # Config from env vars
-      self.options = defaults.merge(file_config).merge(options)
+      # Env vars override config file. Command args override env vars.
+      self.options = defaults.merge(file_config).merge(env_config).merge(options)
 
+      # Ensure region env var is set for AWS client
+      ENV['AWS_REGION'] = options['region']
+
+      # TODO: validate required options are present
     end
 
     shared_options
@@ -103,27 +116,28 @@ class CfnFlow < Thor
   def tag_release
     # Check git status
     unless `git status -s`.empty?
-      say "Git working directory is not clean.", :red
-      say "Please commit or reset changes in order to release.", :red
-      exit 1
+      git_error "Git working directory is not clean. Please commit or reset changes in order to release."
     end
     unless $?.success?
-      say "Error running `git status`", :red
-      exit 1
+      git_error "Error running `git status`"
     end
 
     say "Tagging release #{options['release']}"
     `git tag -a -m #{options['release']}, #{options['release']}`
     unless $?.success?
-      say "Error tagging release.", :red
-      exit 1
+      git_error "Error tagging release."
     end
   end
 
   def push_tag
     `git push origin #{options['release']}`
     unless $?.success?
-      say_status "Error pushing tag to origin.", :red
+      git_error "Error pushing tag to origin."
     end
+  end
+
+  def git_error(message)
+    say message, :red
+    raise GitError.new(message)
   end
 end
