@@ -17,7 +17,7 @@ Any settings in the configuration file can be overridden with command line
 arguments.
 
 ```
-# `cfn-flow.yml` in the root of your project
+# cfn-flow.yml in the root of your project
 # All options in this config can be overridden with command line arguments
 ---
 bucket: 'my-s3-bucket' # S3 bucket where templates are uploaded.

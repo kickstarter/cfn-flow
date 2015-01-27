@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.email = "aaron@ktheory.com"
 
   s.files = Dir.glob("{bin,lib}/**/*") + %w(Rakefile README.md)
+  s.executables = ['cfn-flow']
   s.homepage = 'http://github.com/kickstarter/cfn-flow'
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
