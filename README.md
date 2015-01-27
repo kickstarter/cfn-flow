@@ -32,7 +32,7 @@ Dev mode allows you to quickly test template changes.
 Dev mode does not verify that your local changes are
 committed to git (as opposed to release mode).
 
-You should only use dev mode for testing & verifying changes in non-production stacks.
+You should use dev mode for testing & verifying changes in non-production stacks.
 
 ```
 # Set a personal name to prefix your templates.
