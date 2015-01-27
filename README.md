@@ -24,7 +24,7 @@ Poke around:
 cfn-flow help
 ```
 
-### Dev mode (default)
+#### Dev mode (default)
 
 Dev mode allows you to quickly test template changes.
 `cfn-flow` validates all templates and uploads them to your personal prefix, overwriting existing templates.
@@ -49,7 +49,7 @@ cfn-init
 You can launch or update test stacks using your dev template path to quickly test your
 template changes.
 
-### Release mode
+#### Release mode
 
 Release mode publishes your templates to a versioned S3 path, and pushes a git
 tag of the version.
@@ -102,15 +102,9 @@ AWS credentials can only be set using the
 using an EC2 instance's IAM role.
 
 
-## Features
+## Sweet Features
 
-### Get help with command options
-
-```
-cfn-flow help
-```
-
-### YAML > JSON
+#### YAML > JSON
 
 `cfn-flow` lets you write templates in either JSON or
 [YAML](http://www.yaml.org). YAML is a superset of JSON that allows a terser,
@@ -121,10 +115,10 @@ CloudFormation stacks.
 There are two modes for running `cfn-flow`: dev mode, and release mode.
 
 
-### Using versions with nested stacks
+#### Use versions in nested stack template URLs
 
 `cfn-flow` works great with [nested stack
-resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-stack.html). Use the `Fn::Join` to construct the `TemplateURL` from a parameter:
+resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-stack.html). Use [Fn::Join](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-join.html) to construct the `TemplateURL` from a parameter:
 
 ```
 {
@@ -139,4 +133,4 @@ resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-pro
 }
 ```
 
-While testing, set the `prefix` parameter to `dev/aaron`. When you're confident your changes work, release them and change the `prefix` parameter to `release/1.0.0` for production.
+While testing, set the `prefix` parameter to dev prefix like `dev/aaron`. When you're confident your changes work, release them with cfn-flow and change the `prefix` parameter to `release/1.0.0` for production.
