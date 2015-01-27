@@ -108,7 +108,7 @@ class CfnFlow < Thor
     if options['release']
       parts += [ 'release',  options['release'] ]
     else
-      parts += [ 'dev', options['dev'] ]
+      parts += [ 'dev', options['dev-name'] ]
     end
     File.join(*parts)
   end
