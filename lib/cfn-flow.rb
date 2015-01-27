@@ -129,7 +129,7 @@ class CfnFlow < Thor
     end
   end
 
-  def push_tag
+  def push_release
     `git push origin #{options['release']}`
     unless $?.success?
       git_error "Error pushing tag to origin."
