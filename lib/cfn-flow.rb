@@ -81,6 +81,7 @@ class CfnFlow < Thor
     push_release if options['release']
 
   end
+  default_task :upload
 
   private
   def verbose(msg)
