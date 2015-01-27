@@ -112,9 +112,6 @@ less cluttered syntax, inline comments, and code re-use with variables. YAML
 templates are transparently converted to JSON when uploaded to S3 for use in
 CloudFormation stacks.
 
-There are two modes for running `cfn-flow`: dev mode, and release mode.
-
-
 #### Use versions in nested stack template URLs
 
 `cfn-flow` works great with [nested stack
