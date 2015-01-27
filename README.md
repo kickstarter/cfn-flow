@@ -27,7 +27,7 @@ cfn-flow help
 ### Dev mode (default)
 
 Dev mode allows you to quickly test template changes.
-`cnf-flow` validates all templates and uploads them to your personal prefix, overwriting existing templates.
+`cfn-flow` validates all templates and uploads them to your personal prefix, overwriting existing templates.
 
 Dev mode does not verify that your local changes are
 committed to git (as opposed to release mode).
