@@ -4,6 +4,8 @@ require 'multi_json'
 require 'yaml'
 
 class CfnFlow < Thor
+  VERSION = '0.0.3'
+
   class GitError < StandardError; end
 
   require 'cfn-flow/template'

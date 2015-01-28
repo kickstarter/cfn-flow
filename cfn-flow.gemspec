@@ -2,7 +2,7 @@
 lib = File.expand_path('../lib/', __FILE__)
 $:.unshift lib unless $:.include?(lib)
 
-require 'cfn-flow/version'
+require 'cfn-flow'
 
 Gem::Specification.new do |s|
   s.name = 'cfn-flow'
