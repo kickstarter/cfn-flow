@@ -76,22 +76,25 @@ environment variables are overridden by command line arguments.
 
 ```
 # cfn-flow.yml in the root of your project
+# You can specify an alternative path by setting the CFN_FLOW_CONFIG environment
+# variable.
+#
 # All options in this config can be overridden with command line arguments
 ---
 # S3 bucket where templates are uploaded. No default.
-# Override with CFN_FLOW_BUCKET
+# Override with CFN_FLOW_BUCKET env var
 bucket: 'my-s3-bucket'
 
 # S3 path prefix. Default: none
-# Override with CFN_FLOW_TO
+# Override with CFN_FLOW_TO env var
 to: my/project/prefix
 
 # Local path in which to recursively search for templates. Default: .
-# Override with CFN_FLOW_FROM
+# Override with CFN_FLOW_FROM env var
 from: my/local/prefix
 
 # AWS Region
-# Override with AWS_REGION
+# Override with AWS_REGION env var
 region: us-east-1 # AWS region
 ```
 
@@ -131,3 +134,11 @@ resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-pro
 ```
 
 While testing, set the `prefix` parameter to a dev prefix like `dev/aaron`. When you're confident your changes work, release them with cfn-flow and change the `prefix` parameter to `release/1.0.0` for production.
+
+#### Continuous integration
+
+#### Github commit status
+
+#### Minimal AWS credentials
+
+TODO: example IAM policy

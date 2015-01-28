@@ -8,7 +8,6 @@ class CfnFlow < Thor
 
   class GitError < StandardError; end
 
-  require 'cfn-flow/template'
   def self.shared_options
 
     method_option :bucket,     type: :string, desc: 'S3 bucket for templates'
@@ -24,7 +23,7 @@ class CfnFlow < Thor
     def load_config
       defaults = { 'from' => '.' }
       file_config = begin
-        YAML.load_file('./cfn-flow.yml')
+        YAML.load_file(ENV['CFN_FLOW_CONFIG'] || './cfn-flow.yml')
       rescue Errno::ENOENT
         {}
       end
@@ -143,3 +142,5 @@ class CfnFlow < Thor
     raise GitError.new(message)
   end
 end
+
+require 'cfn-flow/template'

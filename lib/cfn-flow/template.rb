@@ -17,6 +17,8 @@ class CfnFlow::Template
     from_data.is_a?(Hash) && from_data.key?('Resources')
   end
 
+  # Returns a response object if valid, or raises an
+  # Aws::CloudFormation::Errors::ValidationError with an error message
   def validate!
     cfn.validate_template(template_body: to_json)
   end
