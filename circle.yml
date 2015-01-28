@@ -1,0 +1,3 @@
+test:
+  override:
+    - bin/rake test
