@@ -22,8 +22,8 @@ class CfnFlow::Template
   end
 
   def key
-    # Replace leading './' in from, rename *.yml to *.json
-    File.join(prefix, from.sub(/\A\.\//, '').sub(/\.yml\Z/, '.json'))
+    # Replace leading './' in from
+    File.join(prefix, from.sub(/\A\.\//, ''))
   end
 
   def upload!
