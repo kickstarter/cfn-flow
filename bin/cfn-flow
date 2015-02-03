@@ -1,3 +1,4 @@
 #!/usr/bin/env ruby
+
 require 'cfn-flow'
-CfnFlow.start
+CfnFlow::CLI.start
