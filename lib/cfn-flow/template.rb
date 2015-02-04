@@ -1,7 +1,7 @@
 class CfnFlow::Template
   attr_reader :from, :prefix, :bucket
-  def initialize(from:, prefix:, bucket:)
-    @from, @prefix, @bucket = from, prefix, bucket
+  def initialize(opts={})
+    @from, @prefix, @bucket = opts[:from], opts[:prefix], opts[:bucket]
   end
 
   def yaml?
