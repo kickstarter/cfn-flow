@@ -43,7 +43,7 @@ s3://my-bucket/dev/aaron/*
 # NB that this overwrites existing templates in your CFN_FLOW_DEV_NAME
 namespace.
 
-cfn-init
+cfn-flow
 ```
 
 You can launch or update test stacks using your dev template path to quickly test your
@@ -55,13 +55,13 @@ Release mode publishes your templates to a versioned S3 path, and pushes a git
 tag of the version.
 
 ```
-# uploads templates to `s3://my-bucket/release/1.0.0/*` and pushes a 1.0.0 git
+# uploads templates to `s3://my-bucket/release/<git sha>/*`
 tag
-cfn-flow --release 1.0.0
+cfn-flow --release
 ```
 
 Release mode ensures there are no uncommitted changes in your git working
-directory, and pushes a `1.0.0` git tag.
+directory.
 
 Inspecting the differences between releases is possible using `git log` and `git
 diff`.
@@ -133,7 +133,7 @@ resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-pro
 }
 ```
 
-While testing, set the `prefix` parameter to a dev prefix like `dev/aaron`. When you're confident your changes work, release them with cfn-flow and change the `prefix` parameter to `release/1.0.0` for production.
+While testing, set the `prefix` parameter to a dev prefix like `dev/aaron`. When you're confident your changes work, release them with cfn-flow and change the `prefix` parameter to `release/<git sha>` for production.
 
 #### Continuous integration
 
