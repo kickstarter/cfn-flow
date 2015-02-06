@@ -1,6 +1,9 @@
 class CfnFlow::Template
   attr_reader :from, :prefix, :bucket
   def initialize(opts={})
+    unless [:from, :prefix, :bucket].all? {|arg| opts.key?(arg) }
+      raise ArgumentError.new("Must pass :from, :prefix, and :bucket")
+    end
     @from, @prefix, @bucket = opts[:from], opts[:prefix], opts[:bucket]
   end
 
@@ -51,11 +54,11 @@ class CfnFlow::Template
 
   private
   def cfn
-    @cfn ||= Aws::CloudFormation::Client.new
+    Thread.current[:aws_cfn_client] ||= Aws::CloudFormation::Client.new
   end
 
   def s3_object
-    @s3_object ||= Aws::S3::Object.new(bucket, key)
+    Thread.current[:aws_s3_object] ||= Aws::S3::Object.new(bucket, key)
   end
 
 end

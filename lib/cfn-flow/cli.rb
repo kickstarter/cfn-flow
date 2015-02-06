@@ -6,7 +6,7 @@ class CfnFlow::CLI < Thor
     method_option :from,       type: :string, desc: 'Local source directory for templates'
     method_option 'dev-name',  type: :string, desc: 'Personal development prefix'
     method_option :region,     type: :string, desc: 'AWS Region'
-    method_option :verbose, type: :boolean, desc: 'Verbose output', default: false
+    method_option :verbose,    type: :boolean, desc: 'Verbose output', default: false
   end
 
   no_commands do
@@ -31,7 +31,16 @@ class CfnFlow::CLI < Thor
       # Ensure region env var is set for AWS client
       ENV['AWS_REGION'] = options['region']
 
-      # TODO: validate required options are present
+      # validate required options are present
+      %w(region bucket to from).each do |arg|
+        unless options[arg]
+          raise Thor::RequiredArgumentMissingError.new("Missing required argument '#{arg}'")
+        end
+      end
+
+      unless options['dev-name'] || options['release']
+        raise Thor::RequiredArgumentMissingError.new("Missing either 'dev-name' or 'release' argument")
+      end
     end
 
     shared_options
@@ -61,12 +70,11 @@ class CfnFlow::CLI < Thor
     load_templates
     @templates.each do |t|
       begin
-        verbose "Validating #{t.from}... "
+        say "Validating #{t.from}... "
         t.validate!
-        verbose "valid."
+        say "valid."
       rescue Aws::CloudFormation::Errors::ValidationError
-        say "Error validating #{t.from}. Message:"
-        say $!.message
+        raise Thor::Error.new("Error validating #{t.from}. Message: #{$!.message}")
       end
     end
   end
@@ -75,11 +83,11 @@ class CfnFlow::CLI < Thor
   shared_options
   method_option :release, type: :string, lazy_default: CfnFlow::Git.sha, desc: 'Upload release'
   def upload
-    check_git_status if options['release']
+    CfnFlow::Git.check_status if options['release']
 
     validate
     @templates.each do |t|
-      verbose "Uploading #{t.from} to #{t.url}"
+      say "Uploading #{t.from} to #{t.url}"
       t.upload!
     end
 
@@ -94,7 +102,7 @@ class CfnFlow::CLI < Thor
   def prefix
     # Add the release or dev name to the prefix
     parts = []
-    parts << options['prefix'] unless options['prefix'].empty?
+    parts << options['prefix'] if options['prefix']
     if options['release']
       parts += [ 'release',  options['release'] ]
     else
