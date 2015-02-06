@@ -1,0 +1,6 @@
+---
+bucket: test-bucket
+prefix: test-prefix
+from: spec/data
+to: test-to
+region: us-east-1
