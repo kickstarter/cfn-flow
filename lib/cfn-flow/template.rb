@@ -58,7 +58,7 @@ class CfnFlow::Template
   end
 
   def s3_object
-    Thread.current[:aws_s3_object] ||= Aws::S3::Object.new(bucket, key)
+    Aws::S3::Object.new(bucket, key)
   end
 
 end
