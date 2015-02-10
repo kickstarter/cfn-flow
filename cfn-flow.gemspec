@@ -4,7 +4,7 @@ $:.unshift lib unless $:.include?(lib)
 
 Gem::Specification.new do |s|
   s.name = 'cfn-flow'
-  s.version = '0.1.0'
+  s.version = '0.1.1'
   s.license = 'MIT'
 
   s.authors = ["Aaron Suggs"]
