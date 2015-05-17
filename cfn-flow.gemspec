@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'aws-sdk', '~> 2.0'
   s.add_dependency 'thor', '~> 0.18'
-  s.add_dependency 'multi_json', '~> 1.0' # Same as aws-sdk
+  s.add_dependency 'multi_json'
 
   s.add_development_dependency 'minitest'
   s.add_development_dependency 'rake'
