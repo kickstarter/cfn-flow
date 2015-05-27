@@ -102,7 +102,7 @@ class CfnFlow::CLI < Thor
   def prefix
     # Add the release or dev name to the prefix
     parts = []
-    parts << options['prefix'] if options['prefix']
+    parts << options['to']
     if options['release']
       parts += [ 'release',  options['release'] ]
     else
