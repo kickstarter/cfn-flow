@@ -11,7 +11,7 @@ class CfnFlow::CLI < Thor
 
   # Exit with status code = 1 when raising a Thor::Error
   # Override thor default
-  def exit_on_failure?
+  def self.exit_on_failure?
     true
   end
 
