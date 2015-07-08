@@ -2,4 +2,8 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'pry', require: nil
+group :development do
+  gem 'pry'
+  gem 'guard' # NB: this is necessary in newer versions
+  gem 'guard-minitest'
+end
