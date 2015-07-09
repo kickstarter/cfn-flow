@@ -1,5 +1,10 @@
 # cfn-flow
-An opinionated command-line workflow for developing AWS CloudFormation templates. Track template changes in git and upload versioned releases to AWS S3.
+An opinionated command-line workflow for developing [AWS CloudFormation](https://aws.amazon.com/cloudformation/) templates and deploying stacks.
+
+Track template changes in git and upload versioned releases to AWS S3.
+
+Deploy stacks using a standard, reliable process with extensible
+configuration in git.
 
 #### Opinions
 
