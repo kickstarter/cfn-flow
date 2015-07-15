@@ -45,7 +45,6 @@ describe 'CfnFlow::Template' do
 
   describe '#validate!' do
     it 'can succeed' do
-      template.send(:cfn).stub_responses(:validate_template)
       template.validate!
     end
     it 'can raise an error' do

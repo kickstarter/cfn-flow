@@ -35,6 +35,13 @@ class Minitest::Spec
   # Reset env between tests
   before { @orig_env = ENV.to_hash }
   after  { ENV.clear; ENV.update(@orig_env) }
+
+  # Reset stubs
+  after  {
+    CfnFlow.clear!
+    Aws.config.delete(:cloudformation)
+  }
+
   # Disable exit on failure so CLI tests don't bomb out
   before { CfnFlow.exit_on_failure = false }
 end
