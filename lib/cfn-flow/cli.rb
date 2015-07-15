@@ -9,10 +9,8 @@ class CfnFlow::CLI < Thor
     method_option :verbose,    type: :boolean, desc: 'Verbose output', default: false
   end
 
-  # Exit with status code = 1 when raising a Thor::Error
-  # Override thor default
   def self.exit_on_failure?
-    true
+    CfnFlow.exit_on_failure?
   end
 
   no_commands do
