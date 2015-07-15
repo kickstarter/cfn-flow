@@ -35,4 +35,7 @@ class Minitest::Spec
   # Reset env between tests
   before { @orig_env = ENV.to_hash }
   after  { ENV.clear; ENV.update(@orig_env) }
+
+  # Reset AWS stubs
+  after { Aws.config.delete(:cloudformation) }
 end

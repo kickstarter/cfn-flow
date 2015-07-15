@@ -74,12 +74,14 @@ class CfnFlow::CLI < Thor
   shared_options
   def validate
     load_templates
+
     @templates.each do |t|
       begin
         say "Validating #{t.from}... "
         t.validate!
         say "valid."
       rescue Aws::CloudFormation::Errors::ValidationError
+        $stderr.puts 'hello'
         raise Thor::Error.new("Error validating #{t.from}. Message: #{$!.message}")
       end
     end

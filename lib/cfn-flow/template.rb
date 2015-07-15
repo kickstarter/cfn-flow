@@ -54,7 +54,7 @@ class CfnFlow::Template
 
   private
   def cfn
-    Aws::CloudFormation::Client.new
+    CfnFlow.cfn_client
   end
 
   def s3_object

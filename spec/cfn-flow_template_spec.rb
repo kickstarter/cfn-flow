@@ -45,11 +45,15 @@ describe 'CfnFlow::Template' do
 
   describe '#validate!' do
     it 'can succeed' do
-      template.send(:cfn).stub_responses(:validate_template)
+      #template.send(:cfn).stub_responses(:validate_template)
       template.validate!
     end
+
     it 'can raise an error' do
-      template.send(:cfn).stub_responses(:validate_template, 'ValidationError')
+      Aws.config[:cloudformation] = {
+        stub_responses: { validate_template: 'ValidationError' }
+      }
+      pry
       -> { template.validate! }.must_raise Aws::CloudFormation::Errors::ValidationError
     end
   end
