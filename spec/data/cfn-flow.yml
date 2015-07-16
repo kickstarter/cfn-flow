@@ -1,6 +1,9 @@
 ---
-bucket: test-bucket
-prefix: test-prefix
-from: spec/data
-to: test-to
+service: cfn-flow-specs
 region: us-east-1
+templates:
+  bucket: test-bucket
+  s3_prefix: test-prefix
+
+stacks:
+  # TODO

@@ -16,6 +16,7 @@ ENV['AWS_REGION'] = 'us-east-1'
 ENV['AWS_ACCESS_KEY_ID'] = 'test-key'
 ENV['AWS_SECRET_ACCESS_KEY'] = 'test-secret'
 ENV['CFN_FLOW_DEV_NAME'] = 'cfn-flow-specs'
+ENV['CFN_FLOW_CONFIG_PATH'] = 'spec/data/cfn-flow.yml'
 
 class Minitest::Spec
   # From http://git.io/bcfh
@@ -32,16 +33,22 @@ class Minitest::Spec
     result
   end
 
-  # Reset env between tests
-  before { @orig_env = ENV.to_hash }
-  after  { ENV.clear; ENV.update(@orig_env) }
+  before do
+    # Reset env between tests:
+    @orig_env = ENV.to_hash
 
-  # Reset stubs
-  after  {
+    # Disable exit on failure so CLI tests don't bomb out
+    CfnFlow.exit_on_failure = false
+  end
+
+  after do
+    # Reset env
+    ENV.clear
+    ENV.update(@orig_env)
+
+    # Reset stubs
     CfnFlow.clear!
     Aws.config.delete(:cloudformation)
-  }
+  end
 
-  # Disable exit on failure so CLI tests don't bomb out
-  before { CfnFlow.exit_on_failure = false }
 end

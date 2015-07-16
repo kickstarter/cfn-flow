@@ -2,9 +2,35 @@ require 'thor'
 require 'aws-sdk'
 require 'multi_json'
 require 'yaml'
+require 'erb'
 
 module CfnFlow
   class << self
+
+    ##
+    # Configuration
+    def config_path
+      ENV['CFN_FLOW_CONFIG_PATH'] || 'cfn-flow.yml'
+    end
+
+    def load_config
+      @config = YAML.load(
+        ERB.new( File.read(config_path) ).result(binding)
+      )
+      # TODO: Validate config?
+    end
+
+    def config_loaded?
+      @config.is_a? Hash
+    end
+
+    def config
+      load_config unless config_loaded?
+      @config
+    end
+
+    ##
+    # Aws Clients
     def cfn_client
       @cfn_client ||= Aws::CloudFormation::Client.new
     end
@@ -13,9 +39,9 @@ module CfnFlow
       @cfn_resource ||= Aws::CloudFormation::Resource.new
     end
 
-    # Clear aws sdk clients (for tests)
+    # Clear aws sdk clients & config (for tests)
     def clear!
-      @cfn_client = @cfn_resource = nil
+      @config = @cfn_client = @cfn_resource = nil
     end
 
     # Exit with status code = 1 when raising a Thor::Error
