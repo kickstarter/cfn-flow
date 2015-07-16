@@ -3,22 +3,24 @@ require_relative '../helper'
 describe 'CfnFlow::Template' do
 
   let(:template) {
-    CfnFlow::Template.new(from: 'spec/data/sqs.template', prefix: 'p', bucket: 'b')
+    CfnFlow::Template.new('spec/data/sqs.template')
   }
 
   let(:yml_template) {
-    CfnFlow::Template.new(from: 'spec/data/sqs.yml', prefix: 'p', bucket: 'b')
+    CfnFlow::Template.new('spec/data/sqs.yml')
   }
 
   let(:not_a_template) {
-    CfnFlow::Template.new(from: 'spec/data/cfn-flow.yml', prefix: 'p', bucket: 'b')
+    CfnFlow::Template.new('spec/data/cfn-flow.yml')
   }
+
+  let(:release) { 'deadbeef' }
 
   describe '#initialize' do
     subject { CfnFlow::Template }
 
     it('succeeds') do
-      subject.new(from: 'f', prefix: 'p', bucket: 'b').must_be_kind_of CfnFlow::Template
+      subject.new('f').must_be_kind_of CfnFlow::Template
     end
 
     it('requires args') do
@@ -43,8 +45,85 @@ describe 'CfnFlow::Template' do
     end
   end
 
+  describe '#bucket' do
+    it 'uses CfnFlow.config' do
+      template.bucket.must_equal CfnFlow.config['templates']['bucket']
+    end
+     it 'has the correct value' do
+      template.bucket.must_equal 'test-bucket'
+    end
+  end
+
+  describe '#s3_prefix' do
+    it 'uses CfnFlow.config' do
+      template.s3_prefix.must_equal CfnFlow.config['templates']['s3_prefix']
+    end
+     it 'has the correct value' do
+      template.s3_prefix.must_equal 'test-prefix'
+    end
+  end
+
+  describe '#key' do
+    it 'has the correct value' do
+      expected = File.join(template.s3_prefix, release, template.local_path)
+      template.key(release).must_equal expected
+    end
+
+    it "removes leading './'" do
+      CfnFlow::Template.new('./foo').key(release).must_equal "test-prefix/#{release}/foo"
+    end
+  end
+
+  describe '#s3_object' do
+    it 'is an S3::Object' do
+      subject = template.s3_object(release)
+      subject.must_be_kind_of Aws::S3::Object
+      subject.bucket.name.must_equal template.bucket
+      subject.key.must_equal template.key(release)
+    end
+  end
+
+  describe '#url' do
+    it 'is the correct S3 url' do
+      uri = URI.parse(template.url(release))
+      uri.scheme.must_equal 'https'
+      uri.host.must_match(/\A#{template.bucket}\.s3\..+\.amazonaws\.com\z/)
+      uri.path.must_equal('/' + template.key(release))
+    end
+  end
+
+  describe '#upload' do
+    it 'succeeds' do
+      template.upload(release)
+    end
+  end
+
+  describe '#local_data' do
+    it 'should read valid data' do
+      template.local_data.must_be_kind_of Hash
+      template.local_data.must_be_kind_of Hash
+    end
+
+    it 'should raise an error on invalid json data' do
+      -> { CfnFlow::Template.new('spec/data/invalid.json').local_data }.must_raise CfnFlow::Template::Error
+    end
+
+    it 'should raise an error on invalid YAML data' do
+      -> { CfnFlow::Template.new('spec/data/invalid.yml').local_data }.must_raise CfnFlow::Template::Error
+    end
+    it 'should raise an on a missing file' do
+      -> { CfnFlow::Template.new('no/such/file').local_data }.must_raise CfnFlow::Template::Error
+    end
+  end
+
+  describe '#to_json' do
+    it 'should work' do
+      template.to_json.must_equal MultiJson.dump(template.local_data, pretty: true)
+    end
+  end
+
   describe '#validate!' do
-    it 'can succeed' do
+    it 'succeeds' do
       template.validate!
     end
     it 'can raise an error' do
