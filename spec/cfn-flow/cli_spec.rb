@@ -1,4 +1,4 @@
-require_relative 'helper'
+require_relative '../helper'
 
 describe 'CfnFlow::CLI' do
   let(:cli) { CfnFlow::CLI }
