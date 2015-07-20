@@ -29,6 +29,12 @@ module CfnFlow
       @config
     end
 
+    def service
+      unless config.key?('service')
+        raise Thor::Error.new("No service name in #{config_path}. Add 'service: my_app_name'.")
+      end
+      config['service']
+    end
     ##
     # Aws Clients
     def cfn_client

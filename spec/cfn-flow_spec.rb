@@ -30,6 +30,19 @@ describe 'CfnFlow' do
     it('should be a hash') { subject.config.must_be_kind_of(Hash) }
   end
 
+  describe '.service' do
+    it('raises an error when missing') do
+      subject.instance_variable_set(:@config, {})
+      error = -> { subject.service }.must_raise(Thor::Error)
+      error.message.must_match 'No service name'
+    end
+
+    it('returns the service') do
+      subject.instance_variable_set(:@config, {'service' => 'RoflScaler'})
+      subject.service.must_equal 'RoflScaler'
+    end
+  end
+
   it '.cfn_client' do
     subject.cfn_client.must_be_kind_of Aws::CloudFormation::Client
   end
