@@ -5,42 +5,6 @@ module CfnFlow
       CfnFlow.exit_on_failure?
     end
 
-    no_commands do
-      def load_config
-        defaults = { 'from' => '.' }
-        file_config = begin
-                        YAML.load_file(ENV['CFN_FLOW_CONFIG'] || './cfn-flow.yml')
-                      rescue Errno::ENOENT
-                        {}
-                      end
-        env_config = {
-          'bucket'      => ENV['CFN_FLOW_BUCKET'],
-          'to'          => ENV['CFN_FLOW_TO'],
-          'from'        => ENV['CFN_FLOW_FROM'],
-          'dev-name'    => ENV['CFN_FLOW_DEV_NAME'],
-          'region'      => ENV['AWS_REGION']
-        }.delete_if {|_,v| v.nil?}
-
-        # Env vars override config file. Command args override env vars.
-        self.options = defaults.merge(file_config).merge(env_config).merge(options)
-
-        # Ensure region env var is set for AWS client
-        ENV['AWS_REGION'] = options['region']
-
-        # validate required options are present
-        %w(region bucket to from).each do |arg|
-          unless options[arg]
-            raise Thor::RequiredArgumentMissingError.new("Missing required argument '#{arg}'")
-          end
-        end
-
-        unless options['dev-name'] || options['release']
-          raise Thor::RequiredArgumentMissingError.new("Missing either 'dev-name' or 'release' argument")
-        end
-      end
-
-    end
-
     ##
     # Template methods
 
@@ -97,9 +61,7 @@ module CfnFlow
     desc :list, 'List running stacks'
     method_option 'no-header', type: :boolean, desc: 'Do not print column headers'
     def list
-      stacks = CfnFlow.cfn_resource.stacks.select{ |stack|
-        stack.tags.any? {|tag| tag.key == 'CfnFlowService' && tag.value == CfnFlow.service }
-      }
+      stacks = list_stacks_in_service
 
       return if stacks.empty?
 
@@ -141,21 +103,15 @@ module CfnFlow
       end
     end
 
-    desc 'cleanup', 'Shut down a stack'
+    desc 'delete STACK', 'Shut down STACK'
     method_option :force, type: :boolean, default: false, desc: 'Shut down without confirmation'
-    method_option :except, type: :string, desc: 'A list of stacks to omit from cleanup'
-    def cleanup
-      # TODO
+    def delete(name)
+      stack = find_stack_in_service(name)
+      if options[:force] || yes?("Are you sure you want to shut down #{name}?", :red)
+        stack.delete
+        say "Deleted stack #{name}"
+      end
     end
-
-
-
-
-
-
-
-
-
 
     private
     def find_stack_in_service(name)
@@ -167,6 +123,12 @@ module CfnFlow
     rescue Aws::CloudFormation::Errors::ValidationError => e
       # Handle missing stacks: 'Stack with id blah does not exist'
       raise Thor::Error.new(e.message)
+    end
+
+    def list_stacks_in_service
+      CfnFlow.cfn_resource.stacks.select do |stack|
+        stack.tags.any? {|tag| tag.key == 'CfnFlowService' && tag.value == CfnFlow.service }
+      end
     end
 
     def publish_prefix

@@ -20,20 +20,6 @@ ENV['CFN_FLOW_CONFIG_PATH'] = 'spec/data/cfn-flow.yml'
 ENV['CFN_FLOW_EVENT_POLLING_INTERVAL'] = '0'
 
 class Minitest::Spec
-  # From http://git.io/bcfh
-  def capture(stream = :stdout)
-    begin
-      stream = stream.to_s
-      eval "$#{stream} = StringIO.new"
-      yield
-      result = eval("$#{stream}").string
-    ensure
-      eval("$#{stream} = #{stream.upcase}")
-    end
-
-    result
-  end
-
   before do
     # Reset env between tests:
     @orig_env = ENV.to_hash
