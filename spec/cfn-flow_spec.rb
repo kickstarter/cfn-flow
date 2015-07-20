@@ -49,6 +49,7 @@ describe 'CfnFlow' do
 
   it '.cfn_resource' do
     subject.cfn_resource.must_be_kind_of Aws::CloudFormation::Resource
+    subject.cfn_resource.client.config.retry_limit.must_equal 10
   end
 
   describe '.exit_on_failure?' do

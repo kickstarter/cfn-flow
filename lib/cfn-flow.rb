@@ -42,7 +42,9 @@ module CfnFlow
     end
 
     def cfn_resource
-      @cfn_resource ||= Aws::CloudFormation::Resource.new
+      # NB: increase default retry limit to avoid throttling errors iterating over stacks.
+      # See https://github.com/aws/aws-sdk-ruby/issues/705
+      @cfn_resource ||= Aws::CloudFormation::Resource.new(retry_limit: 10)
     end
 
     # Clear aws sdk clients & config (for tests)
