@@ -112,12 +112,13 @@ module CfnFlow
       end
 
       print_table(table_header + table_data)
-
     end
 
     desc 'show STACK', 'Show details about STACK'
-    def show(stack)
-      # TODO
+    method_option :json, default: false, type: :boolean, desc: 'Show stack as JSON (default is YAML)'
+    def show(name)
+      data = find_stack_in_service(name).data.to_hash
+      say options[:json] ? MultiJson.dump(data, pretty: true) : data.to_yaml
     end
 
     desc 'events STACK', 'List events for  STACK'
@@ -143,8 +144,15 @@ module CfnFlow
 
 
     private
-    def verbose(msg)
-      say msg if options['verbose']
+    def find_stack_in_service(name)
+      stack = CfnFlow.cfn_resource.stack(name).load
+      unless stack.tags.any? {|tag| tag.key == 'CfnFlowService' && tag.value == CfnFlow.service }
+        raise Thor::Error.new "Stack #{name} is not tagged for service #{CfnFlow.service}"
+      end
+      stack
+    rescue Aws::CloudFormation::Errors::ValidationError => e
+      # Handle missing stacks: 'Stack with id blah does not exist'
+      raise Thor::Error.new(e.message)
     end
 
     def publish_prefix

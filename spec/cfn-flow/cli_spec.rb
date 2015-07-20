@@ -119,4 +119,71 @@ describe 'CfnFlow::CLI' do
     end
   end
 
+  describe '#show' do
+    describe 'with a stack' do
+      before do
+        Aws.config[:cloudformation]= {
+          stub_responses: {
+            describe_stacks: {
+              stacks: [
+                { stack_name: "mystack",
+                  stack_status: 'CREATE_COMPLETE',
+                  creation_time: Time.now,
+                  tags: [
+                    {key: 'CfnFlowService', value: CfnFlow.service},
+                    {key: 'CfnFlowEnvironment', value: 'production'}
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      end
+
+      it 'should print in yaml' do
+        out, err = capture_io { cli.start [:show, 'mystack'] }
+        expected = CfnFlow.cfn_resource.stack('mystack').data.to_hash.to_yaml
+        out.must_equal expected
+        err.must_equal ''
+      end
+
+      it 'handles --json option' do
+        out, _ = capture_io { cli.start [:show, 'mystack', '--json'] }
+        expected = MultiJson.dump(CfnFlow.cfn_resource.stack('mystack').data.to_hash, pretty: true) + "\n"
+        out.must_equal expected
+      end
+    end
+
+    it 'returns an error with missing stacks' do
+      Aws.config[:cloudformation]= {
+        stub_responses: { describe_stacks: 'ValidationError' }
+      }
+      out, err = capture_io { cli.start [:show, 'none-such-stack'] }
+      out.must_equal ''
+      err.must_match 'error'
+    end
+
+    it 'returns an error when stack is not in service' do
+      Aws.config[:cloudformation]= {
+        stub_responses: {
+          describe_stacks: {
+            stacks: [
+              { stack_name: "mystack",
+                stack_status: 'CREATE_COMPLETE',
+                creation_time: Time.now,
+                tags: [
+                  {key: 'CfnFlowService', value: 'none-such-service'},
+                  {key: 'CfnFlowEnvironment', value: 'production'}
+                ]
+              }
+            ]
+          }
+        }
+      }
+      out, err = capture_io { cli.start [:show, 'none-such-stack'] }
+      out.must_equal ''
+      err.must_match "not tagged for service #{CfnFlow.service}"
+    end
+  end
+
 end
