@@ -95,7 +95,7 @@ module CfnFlow
     end
 
     desc :list, 'List running stacks'
-    method_option 'no-header', default: false, type: :boolean, desc: 'Do not print column headers'
+    method_option 'no-header', type: :boolean, desc: 'Do not print column headers'
     def list
       stacks = CfnFlow.cfn_resource.stacks.select{ |stack|
         stack.tags.any? {|tag| tag.key == 'CfnFlowService' && tag.value == CfnFlow.service }
@@ -115,17 +115,31 @@ module CfnFlow
     end
 
     desc 'show STACK', 'Show details about STACK'
-    method_option :json, default: false, type: :boolean, desc: 'Show stack as JSON (default is YAML)'
+    method_option :json, type: :boolean, desc: 'Show stack as JSON (default is YAML)'
     def show(name)
       data = find_stack_in_service(name).data.to_hash
       say options[:json] ? MultiJson.dump(data, pretty: true) : data.to_yaml
     end
 
     desc 'events STACK', 'List events for  STACK'
-    def events(stack)
-      # TODO
-    end
+    method_option :tail, type: :boolean, desc: 'Poll for new events until the stack is complete'
+    method_option 'no-header', type: :boolean, desc: 'Do not print column headers'
+    def events(name)
+      stack = find_stack_in_service(name)
 
+      say EventPresenter.header unless options['no-header']
+      EventPresenter.present(stack.events) {|p| say p }
+
+      if options[:tail]
+        # Display events until we're COMPLETE/FAILED
+        delay = (ENV['CFN_FLOW_EVENT_POLLING_INTERVAL'] || 2).to_i
+        stack.wait_until(max_attempts: -1, delay: delay) do |s|
+          EventPresenter.present(s.events) {|p| say p }
+          # Wait until the stack status ends with _FAILED or _COMPLETE
+          s.stack_status.match(/_(FAILED|COMPLETE)$/)
+        end
+      end
+    end
 
     desc 'cleanup', 'Shut down a stack'
     method_option :force, type: :boolean, default: false, desc: 'Shut down without confirmation'

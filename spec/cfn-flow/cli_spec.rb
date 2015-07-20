@@ -45,6 +45,7 @@ describe 'CfnFlow::CLI' do
 
   describe '#publish' do
     it 'debug' do
+      # TODO
       #cli.start [:publish, template, '--release']
     end
   end
@@ -124,18 +125,7 @@ describe 'CfnFlow::CLI' do
       before do
         Aws.config[:cloudformation]= {
           stub_responses: {
-            describe_stacks: {
-              stacks: [
-                { stack_name: "mystack",
-                  stack_status: 'CREATE_COMPLETE',
-                  creation_time: Time.now,
-                  tags: [
-                    {key: 'CfnFlowService', value: CfnFlow.service},
-                    {key: 'CfnFlowEnvironment', value: 'production'}
-                  ]
-                }
-              ]
-            }
+            describe_stacks: { stacks: [ stub_stack_data ] }
           }
         }
       end
@@ -164,26 +154,77 @@ describe 'CfnFlow::CLI' do
     end
 
     it 'returns an error when stack is not in service' do
+      stack_data = stub_stack_data
+      stack_data[:tags][0][:value] = 'none-such-service'
       Aws.config[:cloudformation]= {
         stub_responses: {
-          describe_stacks: {
-            stacks: [
-              { stack_name: "mystack",
-                stack_status: 'CREATE_COMPLETE',
-                creation_time: Time.now,
-                tags: [
-                  {key: 'CfnFlowService', value: 'none-such-service'},
-                  {key: 'CfnFlowEnvironment', value: 'production'}
-                ]
-              }
-            ]
-          }
+          describe_stacks: { stacks: [ stack_data ] }
         }
       }
       out, err = capture_io { cli.start [:show, 'none-such-stack'] }
       out.must_equal ''
       err.must_match "not tagged for service #{CfnFlow.service}"
     end
+  end
+
+  describe '#events' do
+    before do
+      Aws.config[:cloudformation] = {
+        stub_responses: {
+          describe_stack_events: { stack_events: [ stub_event_data ] },
+          describe_stacks: { stacks: [ stub_stack_data ] }
+        }
+      }
+    end
+
+    it 'should show the header by default' do
+      out, _ = capture_io { cli.start [:events, 'mystack'] }
+      out.must_match CfnFlow::EventPresenter.header
+    end
+
+    it 'can omit header' do
+      out, _ = capture_io { cli.start [:events, '--no-headers', 'mystack'] }
+      out.wont_match CfnFlow::EventPresenter.header
+    end
+
+    it 'should show an event' do
+      out, err = capture_io { cli.start [:events, 'mystack'] }
+
+      out.must_match CfnFlow::EventPresenter.new(stub_event).to_s
+      err.must_equal ''
+    end
+
+    describe 'with polling' do
+      before do
+        Aws.config[:cloudformation] = {
+          stub_responses: {
+            describe_stack_events: [
+              { stack_events: [ stub_event_data(resource_status: 'CREATE_IN_PROGRESS') ] },
+              { stack_events: [ stub_event_data(resource_status: 'CREATE_COMPLETE') ] }
+            ],
+            describe_stacks: [
+              { stacks: [ stub_stack_data(stack_status: 'CREATE_IN_PROGRESS') ] },
+              { stacks: [ stub_stack_data(stack_status: 'CREATE_COMPLETE') ] },
+            ]
+          }
+        }
+      end
+
+      it 'should not poll by default' do
+        out, _ = capture_io { cli.start [:events, '--no-header', 'mystack'] }
+        out.must_match 'CREATE_IN_PROGRESS'
+        out.wont_match 'CREATE_COMPLETE'
+      end
+
+      it 'will poll until complete' do
+        out, _ = capture_io {
+          cli.start [:events, '--no-header', '--tail', 'mystack']
+        }
+        out.must_match 'CREATE_IN_PROGRESS'
+        out.must_match 'CREATE_COMPLETE'
+      end
+    end
+
   end
 
 end

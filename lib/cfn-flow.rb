@@ -70,4 +70,5 @@ end
 
 require 'cfn-flow/template'
 require 'cfn-flow/git'
+require 'cfn-flow/event_presenter'
 require 'cfn-flow/cli'
