@@ -38,10 +38,85 @@ describe 'CfnFlow::CLI' do
 
     it 'fails when no templates are passed' do
       out, err = capture_io { cli.start [:validate] }
-      out.must_be :empty?
+      out.must_equal ''
       err.must_match 'You must specify a template to validate'
     end
+  end
 
+  describe '#publish' do
+    it 'debug' do
+      #cli.start [:publish, template, '--release']
+    end
+  end
+
+  describe '#list' do
+    it 'has no output with no stacks' do
+      out, err = capture_io { cli.start [:list] }
+      out.must_equal ''
+      err.must_equal ''
+    end
+
+    describe 'with one stack' do
+      before do
+        Aws.config[:cloudformation]= {
+          stub_responses: {
+            describe_stacks: {
+              stacks: [
+                { stack_name: "mystack",
+                  stack_status: 'CREATE_COMPLETE',
+                  creation_time: Time.now,
+                  tags: [
+                    {key: 'CfnFlowService', value: CfnFlow.service},
+                    {key: 'CfnFlowEnvironment', value: 'production'}
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      end
+      it 'should print the stack' do
+        out, err = capture_io { cli.start [:list] }
+        out.must_match(/mystack\s+production\s+CREATE_COMPLETE/)
+        err.must_equal ''
+      end
+
+      it 'should print the header' do
+        out, _ = capture_io { cli.start [:list] }
+        out.must_match(/NAME\s+ENVIRONMENT\s+STATUS/)
+      end
+
+      it 'should not print the header with option[no-header]' do
+        out, _ = capture_io { cli.start [:list, '--no-header'] }
+        out.wont_match(/NAME\s+ENVIRONMENT\s+STATUS/)
+      end
+    end
+
+    describe 'with stacks in a different service' do
+      before do
+        Aws.config[:cloudformation]= {
+          stub_responses: {
+            describe_stacks: {
+              stacks: [
+                { stack_name: "mystack",
+                  stack_status: 'CREATE_COMPLETE',
+                  creation_time: Time.now,
+                  tags: [
+                    {key: 'CfnFlowService', value: 'none-such-service'},
+                    {key: 'CfnFlowEnvironment', value: 'production'}
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      end
+
+      it 'has no output' do
+        out, _ = capture_io { cli.start [:list] }
+        out.must_equal ''
+      end
+    end
   end
 
 end

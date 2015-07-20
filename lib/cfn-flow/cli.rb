@@ -45,7 +45,6 @@ module CfnFlow
     # Template methods
 
     desc 'validate TEMPLATE [...]', 'Validates templates'
-    method_option :verbose, type: :boolean, desc: 'Verbose output', default: false
     def validate(*templates)
 
       if templates.empty?
@@ -68,6 +67,9 @@ module CfnFlow
     method_option :release,   type: :string, desc: 'Upload release', lazy_default: CfnFlow::Git.sha
     method_option :verbose,   type: :boolean, desc: 'Verbose output', default: false
     def publish(*templates)
+
+      # TODO: test this
+      invoke :validate
       CfnFlow::Git.check_status if options['release']
 
       validate
@@ -84,12 +86,33 @@ module CfnFlow
     desc 'deploy ENVIRONMENT', 'Launch a stack'
     def deploy(environment)
       # TODO
+
+      # Invoke events?
+      invoke :events
+
       # Optionally invoke cleanup
+      invoke :cleanup, '--exclude', stack_name
     end
 
     desc :list, 'List running stacks'
+    method_option 'no-header', default: false, type: :boolean, desc: 'Do not print column headers'
     def list
-      # TODO
+      stacks = CfnFlow.cfn_resource.stacks.select{ |stack|
+        stack.tags.any? {|tag| tag.key == 'CfnFlowService' && tag.value == CfnFlow.service }
+      }
+
+      return if stacks.empty?
+
+      table_header = options['no-header'] ? [] : [['NAME',  'ENVIRONMENT', 'STATUS']]
+      table_data = stacks.map do |s|
+        env_tag = s.tags.detect {|tag| tag.key == 'CfnFlowEnvironment'}
+        env = env_tag ? env_tag.value : 'NONE'
+
+        [ s.name, env, s.stack_status ]
+      end
+
+      print_table(table_header + table_data)
+
     end
 
     desc 'show STACK', 'Show details about STACK'
@@ -124,7 +147,7 @@ module CfnFlow
       say msg if options['verbose']
     end
 
-    def prefix
+    def publish_prefix
       # Add the release or dev name to the prefix
       parts = []
       parts << options['to']
