@@ -2,9 +2,9 @@
 
 ## Working with templates:
 
-### `cfn-flow upload`
+### `cfn-flow publish`
 ```
-$ cfn-flow upload
+$ cfn-flow publish path/to/template.yml
 # validates & uploads templates to dev path
 # E.g. https://mybucket.s3.amazonaws.com/myprefix/dev/aaron/mytemplate.yml
 
@@ -25,7 +25,7 @@ $ cfn-flow upload --release=v1.0.0
 # returns an error on any failure.
 # does not persiste to S3
 
-$ cfn-flow validate
+$ cfn-flow validate path/to/template.yml
 ```
 
 ## Working with stacks
@@ -55,8 +55,8 @@ myapp-production`.
 
 `cfn-flow` automatically sets two tags on your stack:
 
-1. `cfn-flow-service` (e.g. myapp)
-2. `cfn-flow-environment` (e.g. production)
+1. `CfnFlowService` (e.g. myapp)
+2. `CfnFlowEnvironment` (e.g. production)
 
 ### `cfn-flow deploy ENVIRONMENT`
 
@@ -88,6 +88,9 @@ Show the status of STACK.
 ### `cfn-flow events STACK`
 
 List events for STACK
+
+Use the `--tail` option to poll for new events until the stack status is no
+longer `*_IN_PROGRESS`
 
 # Common workflows:
 
