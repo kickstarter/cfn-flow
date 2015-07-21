@@ -218,7 +218,7 @@ describe 'CfnFlow::CLI' do
 
       it 'will poll until complete' do
         out, _ = capture_io {
-          cli.start [:events, '--no-header', '--tail', 'mystack']
+          cli.start [:events, '--no-header', '--poll', 'mystack']
         }
         out.must_match 'CREATE_IN_PROGRESS'
         out.must_match 'CREATE_COMPLETE'

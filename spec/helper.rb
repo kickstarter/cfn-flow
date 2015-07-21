@@ -17,7 +17,7 @@ ENV['AWS_ACCESS_KEY_ID'] = 'test-key'
 ENV['AWS_SECRET_ACCESS_KEY'] = 'test-secret'
 ENV['CFN_FLOW_DEV_NAME'] = 'cfn-flow-specs'
 ENV['CFN_FLOW_CONFIG_PATH'] = 'spec/data/cfn-flow.yml'
-ENV['CFN_FLOW_EVENT_POLLING_INTERVAL'] = '0'
+ENV['CFN_FLOW_EVENT_POLL_INTERVAL'] = '0'
 
 class Minitest::Spec
   before do

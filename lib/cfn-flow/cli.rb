@@ -84,7 +84,7 @@ module CfnFlow
     end
 
     desc 'events STACK', 'List events for  STACK'
-    method_option :tail, type: :boolean, desc: 'Poll for new events until the stack is complete'
+    method_option :poll, type: :boolean, desc: 'Poll for new events until the stack is complete'
     method_option 'no-header', type: :boolean, desc: 'Do not print column headers'
     def events(name)
       stack = find_stack_in_service(name)
@@ -92,9 +92,9 @@ module CfnFlow
       say EventPresenter.header unless options['no-header']
       EventPresenter.present(stack.events) {|p| say p }
 
-      if options[:tail]
+      if options[:poll]
         # Display events until we're COMPLETE/FAILED
-        delay = (ENV['CFN_FLOW_EVENT_POLLING_INTERVAL'] || 2).to_i
+        delay = (ENV['CFN_FLOW_EVENT_POLL_INTERVAL'] || 2).to_i
         stack.wait_until(max_attempts: -1, delay: delay) do |s|
           EventPresenter.present(s.events) {|p| say p }
           # Wait until the stack status ends with _FAILED or _COMPLETE
