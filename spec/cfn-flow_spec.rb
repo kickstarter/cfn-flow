@@ -43,6 +43,50 @@ describe 'CfnFlow' do
     end
   end
 
+  describe '.stack_params' do
+    it('raises an error when missing') do
+      subject.instance_variable_set(:@config, {})
+      error = -> { subject.stack_params('env') }.must_raise(Thor::Error)
+      error.message.must_match 'No stack defined'
+    end
+
+    it('expands parameters') do
+      stack = {'parameters' => {'ami' => 'ami-12345' } }
+      subject.instance_variable_set(:@config, {'service' => 'myservice', 'stack' => stack})
+      subject.stack_params('env')[:parameters].must_equal [ { parameter_key: 'ami', parameter_value: 'ami-12345' } ]
+    end
+
+    it('expands tags') do
+      stack = {'tags' => {'Deployer' => 'Aaron' } }
+      subject.instance_variable_set(:@config, {'service' => 'myservice', 'stack' => stack})
+      expected = [
+        { key: 'Deployer', value: 'Aaron' },
+        { key: 'CfnFlowService', value: 'myservice' },
+        { key: 'CfnFlowEnvironment', value: 'env' }
+      ]
+
+      subject.stack_params('env')[:tags].must_equal expected
+    end
+
+    it 'appends CfnFlow tags' do
+      subject.instance_variable_set(:@config, {'service' => 'myservice', 'stack' => {}})
+      expected = [
+        { key: 'CfnFlowService', value: 'myservice' },
+        { key: 'CfnFlowEnvironment', value: 'env' }
+      ]
+
+      subject.stack_params('env')[:tags].must_equal expected
+    end
+
+    it 'expands template body' do
+      template_path = 'spec/data/sqs.template'
+      stack = {'template_body' => template_path}
+      subject.instance_variable_set(:@config, {'service' => 'myservice', 'stack' => stack})
+      subject.stack_params('env')[:template_body].must_equal CfnFlow::Template.new(template_path).to_json
+    end
+
+  end
+
   it '.cfn_client' do
     subject.cfn_client.must_be_kind_of Aws::CloudFormation::Client
   end

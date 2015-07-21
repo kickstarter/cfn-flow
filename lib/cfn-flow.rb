@@ -35,6 +35,50 @@ module CfnFlow
       end
       config['service']
     end
+
+    def stack_params(environment)
+      unless config['stack'].is_a? Hash
+        raise Thor::Error.new("No stack defined in #{config_path}. Add 'stack: ...'.")
+      end
+
+      # Dup & symbolize keys
+      params = config['stack'].map{|k,v| [k.to_sym, v]}.to_h
+
+      # Expand params
+      if params[:parameters].is_a? Hash
+        expanded_params = params[:parameters].map do |key,value|
+          { parameter_key: key, parameter_value: value }
+        end
+        params[:parameters] = expanded_params
+      end
+
+      # Expand tags
+      if params[:tags].is_a? Hash
+        tags = params[:tags].map do |key, value|
+          {key: key, value: value}
+        end
+
+        params[:tags] = tags
+      end
+
+      # Append CfnFlow tags
+      params[:tags] ||= []
+      params[:tags] << { key: 'CfnFlowService', value: service }
+      params[:tags] << { key: 'CfnFlowEnvironment', value: environment }
+
+      # Expand template body
+      if params[:template_body].is_a? String
+        begin
+          body = CfnFlow::Template.new(params[:template_body]).to_json
+          params[:template_body] = body
+        rescue CfnFlow::Template::Error
+          # Do nothing
+        end
+      end
+
+      params
+    end
+
     ##
     # Aws Clients
     def cfn_client
