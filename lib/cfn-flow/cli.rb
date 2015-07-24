@@ -58,10 +58,15 @@ module CfnFlow
       invoke :cleanup, '--exclude', stack_name
     end
 
-    desc :list, 'List running stacks'
+    desc 'list [ENVIRONMENT]', 'List running stacks in all environments, or ENVIRONMENT'
     method_option 'no-header', type: :boolean, desc: 'Do not print column headers'
-    def list
+    def list(environment=nil)
       stacks = list_stacks_in_service
+      if environment
+        stacks.select! do |stack|
+          stack.tags.any? {|tag| tag.key == 'CfnFlowEnvironment' && tag.value == environment }
+        end
+      end
 
       return if stacks.empty?
 

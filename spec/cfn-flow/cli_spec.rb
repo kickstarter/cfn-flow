@@ -87,6 +87,14 @@ describe 'CfnFlow::CLI' do
         out.must_match(/NAME\s+ENVIRONMENT\s+STATUS/)
       end
 
+      it 'should print stacks when passed an environment' do
+        out, _ = capture_io { cli.start [:list, 'production'] }
+        out.must_match 'mystack'
+
+        out, _ = capture_io { cli.start [:list, 'none-such-env'] }
+        out.must_equal ''
+      end
+
       it 'should not print the header with option[no-header]' do
         out, _ = capture_io { cli.start [:list, '--no-header'] }
         out.wont_match(/NAME\s+ENVIRONMENT\s+STATUS/)
