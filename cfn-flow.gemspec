@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.summary = "A CLI for CloudFormation templates"
   s.test_files = Dir.glob("spec/**/*")
 
-  s.required_ruby_version = '>= 2.0.0'
+  s.required_ruby_version = '>= 2.1.0'
 
   s.add_dependency 'aws-sdk', '~> 2.1.8'
   s.add_dependency 'thor', '~> 0.18'
