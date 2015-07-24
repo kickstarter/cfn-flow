@@ -21,11 +21,11 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.0.0'
 
-  s.add_dependency 'aws-sdk', '~> 2.1'
+  s.add_dependency 'aws-sdk', '~> 2.1.8'
   s.add_dependency 'thor', '~> 0.18'
   s.add_dependency 'multi_json'
 
   s.add_development_dependency 'minitest'
   s.add_development_dependency 'rake'
-  s.add_development_dependency 'appraisal'
+  #s.add_development_dependency 'appraisal'
 end
