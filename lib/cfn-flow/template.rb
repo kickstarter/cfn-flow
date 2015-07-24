@@ -32,7 +32,8 @@ module CfnFlow
     # S3 methods
     def key(release)
       # Replace leading './' in local_path
-      File.join(s3_prefix, release, local_path.sub(/\A\.\//, ''))
+      clean_path = local_path.sub(/\A\.\//, '')
+      File.join(*[s3_prefix, release, clean_path].compact)
     end
 
     def s3_object(release)
@@ -62,11 +63,11 @@ module CfnFlow
     end
 
     def bucket
-      CfnFlow.config['templates']['bucket']
+      CfnFlow.template_s3_bucket
     end
 
     def s3_prefix
-      CfnFlow.config['templates']['s3_prefix']
+      CfnFlow.template_s3_prefix
     end
 
     private

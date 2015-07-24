@@ -87,6 +87,41 @@ describe 'CfnFlow' do
 
   end
 
+  describe '.template_s3_bucket' do
+    it('raises an error when missing') do
+      subject.instance_variable_set(:@config, {})
+      error = -> { subject.template_s3_bucket }.must_raise(Thor::Error)
+      error.message.must_match 'No s3_bucket defined'
+
+      subject.instance_variable_set(:@config, {'templates' => {}})
+      error = -> { subject.template_s3_bucket }.must_raise(Thor::Error)
+      error.message.must_match 'No s3_bucket defined'
+    end
+
+    it 'succeeds' do
+      subject.instance_variable_set(:@config, {'templates' => {'s3_bucket' => 'hello'}})
+      subject.template_s3_bucket.must_equal 'hello'
+    end
+  end
+
+  describe '.template_s3_prefix' do
+    it('raises an error when missing') do
+      subject.instance_variable_set(:@config, {})
+      error = -> { subject.template_s3_prefix }.must_raise(Thor::Error)
+      error.message.must_match 'No templates defined'
+    end
+
+    it 'succeeds' do
+      subject.instance_variable_set(:@config, {'templates' => {'s3_prefix' => 'hello'}})
+      subject.template_s3_prefix.must_equal 'hello'
+    end
+
+    it 'can be nil' do
+      subject.instance_variable_set(:@config, {'templates' => {}})
+      subject.template_s3_prefix.must_equal nil
+    end
+  end
+
   it '.cfn_client' do
     subject.cfn_client.must_be_kind_of Aws::CloudFormation::Client
   end

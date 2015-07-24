@@ -79,6 +79,23 @@ module CfnFlow
       params
     end
 
+    def template_s3_bucket
+      unless config['templates'].is_a?(Hash) &&  config['templates']['s3_bucket']
+        raise Thor::Error.new("No s3_bucket defined for templates in #{config_path}. Add 'templates: { s3_bucket: ... }'.")
+      end
+
+      config['templates']['s3_bucket']
+    end
+
+    def template_s3_prefix
+      unless config['templates'].is_a?(Hash)
+        raise Thor::Error.new("No templates defined in #{config_path}. Add 'templates: ... '.")
+      end
+
+      # Ok for this to be ''
+      config['templates']['s3_prefix']
+    end
+
     ##
     # Aws Clients
     def cfn_client

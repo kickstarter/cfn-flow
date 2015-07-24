@@ -46,8 +46,8 @@ describe 'CfnFlow::Template' do
   end
 
   describe '#bucket' do
-    it 'uses CfnFlow.config' do
-      template.bucket.must_equal CfnFlow.config['templates']['bucket']
+    it 'uses CfnFlow.template_s3_bucket' do
+      template.bucket.must_equal CfnFlow.template_s3_bucket
     end
      it 'has the correct value' do
       template.bucket.must_equal 'test-bucket'
@@ -55,8 +55,8 @@ describe 'CfnFlow::Template' do
   end
 
   describe '#s3_prefix' do
-    it 'uses CfnFlow.config' do
-      template.s3_prefix.must_equal CfnFlow.config['templates']['s3_prefix']
+    it 'uses CfnFlow.template_s3_prefix' do
+      template.s3_prefix.must_equal CfnFlow.template_s3_prefix
     end
      it 'has the correct value' do
       template.s3_prefix.must_equal 'test-prefix'
@@ -71,6 +71,12 @@ describe 'CfnFlow::Template' do
 
     it "removes leading './'" do
       CfnFlow::Template.new('./foo').key(release).must_equal "test-prefix/#{release}/foo"
+    end
+
+    it "can have a empty s3_prefix" do
+      CfnFlow.instance_variable_set(:@config, {'templates' => {'s3_bucket' => 'foo'}})
+      expected = File.join(release, template.local_path)
+      template.key(release).must_equal expected
     end
   end
 
