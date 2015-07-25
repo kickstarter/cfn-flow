@@ -6,7 +6,7 @@ templates:
   s3_prefix: test-prefix
 
 stack:
-  stack_name: cfn-flow-spec-<%= Time.now.to_i %>
+  stack_name: cfn-flow-spec-stack
   template_body: sqs.yml
   parameters:
     AlarmEMail: test@example.com

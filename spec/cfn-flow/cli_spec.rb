@@ -44,9 +44,38 @@ describe 'CfnFlow::CLI' do
   end
 
   describe '#publish' do
-    it 'debug' do
-      # TODO
-      #cli.start [:publish, template, '--release']
+    it 'succeeds' do
+      out, err = capture_io { cli.start [:publish, template] }
+      err.must_be :empty?
+      out.must_match "Validating #{template}... valid."
+      out.must_match "Publishing #{template}"
+    end
+
+    it 'can have multiple templates' do
+      out, _ = capture_io { cli.start [:publish, template, 'spec/data/sqs.template'] }
+      # 2 lines for validating, 2 for publishing
+      out.split("\n").size.must_equal 4
+    end
+
+    it 'can fail with malformed templates' do
+      _, err = capture_io { cli.start [:publish, 'no/such/template'] }
+      err.must_match 'Error loading template'
+      err.must_match 'Errno::ENOENT'
+    end
+
+    it 'can fail with validation error' do
+      Aws.config[:cloudformation] = {stub_responses: {validate_template: 'ValidationError'}}
+      _, err = capture_io { cli.start [:publish, template] }
+      err.must_match "Invalid template"
+    end
+
+    it 'fails when no templates are passed' do
+      out, err = capture_io { cli.start [:publish] }
+      out.must_equal ''
+      err.must_match 'You must specify a template to publish'
+    end
+  end
+
     end
   end
 
@@ -61,18 +90,7 @@ describe 'CfnFlow::CLI' do
       before do
         Aws.config[:cloudformation]= {
           stub_responses: {
-            describe_stacks: {
-              stacks: [
-                { stack_name: "mystack",
-                  stack_status: 'CREATE_COMPLETE',
-                  creation_time: Time.now,
-                  tags: [
-                    {key: 'CfnFlowService', value: CfnFlow.service},
-                    {key: 'CfnFlowEnvironment', value: 'production'}
-                  ]
-                }
-              ]
-            }
+            describe_stacks: { stacks: [ stub_stack_data ] }
           }
         }
       end

@@ -26,22 +26,25 @@ module CfnFlow
       raise Thor::Error.new("Error loading template. (#{e.class}) Message: #{e.message}")
     end
 
-    desc 'publish TEMPLATE [...]', 'Validate & upload templates to the CFN_FLOW_DEV_NAME prefix'
+    desc 'publish TEMPLATE [...]', 'Validate & upload templates'
     method_option 'dev-name', type: :string, desc: 'Personal development prefix'
     method_option :release,   type: :string, desc: 'Upload release', lazy_default: CfnFlow::Git.sha
     method_option :verbose,   type: :boolean, desc: 'Verbose output', default: false
     def publish(*templates)
-
-      # TODO: test this
-      invoke :validate
-      CfnFlow::Git.check_status if options['release']
-
-      validate
-      @templates.each do |t|
-        say "Uploading #{t.from} to #{t.url}"
-        t.upload!
+      if templates.empty?
+        raise Thor::RequiredArgumentMissingError.new('You must specify a template to publish')
       end
 
+      validate(*templates)
+      #CfnFlow::Git.check_status if options['release']
+
+      release = publish_release
+      templates.each do |path|
+        t = Template.new(path)
+
+        say "Publishing #{t.local_path} to #{t.url(release)}"
+        t.upload(release)
+      end
     end
 
     ##
@@ -136,16 +139,17 @@ module CfnFlow
       end
     end
 
-    def publish_prefix
+    def publish_release
       # Add the release or dev name to the prefix
-      parts = []
-      parts << options['to']
-      if options['release']
-        parts += [ 'release',  options['release'] ]
+      if options[:release]
+        'release/' + options[:release]
+      elsif options['dev-name']
+        'dev/' + options['dev-name']
+      elsif ENV['CFN_FLOW_DEV_NAME']
+        'dev/' + ENV['CFN_FLOW_DEV_NAME']
       else
-        parts += [ 'dev', options['dev-name'] ]
+        raise Thor::Error.new("Must specify --release or --dev-name; or set CFN_FLOW_DEV_NAME env var")
       end
-      File.join(*parts)
     end
   end
 end
