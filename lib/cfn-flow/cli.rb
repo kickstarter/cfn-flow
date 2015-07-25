@@ -51,14 +51,33 @@ module CfnFlow
     # Stack methods
 
     desc 'deploy ENVIRONMENT', 'Launch a stack'
+    method_option :cleanup, type: :boolean, desc: 'Prompt to shutdown other stacks in ENVIRONMENT after launching'
     def deploy(environment)
-      # TODO
 
-      # Invoke events?
-      invoke :events
+      begin
+        params = CfnFlow.stack_params(environment)
+        stack = CfnFlow.cfn_resource.create_stack(params)
+      rescue Aws::CloudFormation::Errors::ValidationError => e
+        raise Thor::Error.new(e.message)
+      end
+
+      say "LAUNCHED STACK #{stack.name}"
+
+      # Invoke events
+      say "Polling for events..."
+      invoke :events, [stack.name], ['--poll']
+
 
       # Optionally invoke cleanup
-      invoke :cleanup, '--exclude', stack_name
+      if options[:cleanup]
+        puts "Finding stacks to clean up"
+        list_stacks_in_service.select {|s|
+          s.name != stack.name && \
+            s.tags.any? {|tag| tag.key == 'CfnFlowEnvironment' && tag.value == environment }
+        }.map(&:name).each do |name|
+          delete(name)
+        end
+      end
     end
 
     desc 'list [ENVIRONMENT]', 'List running stacks in all environments, or ENVIRONMENT'
