@@ -1,10 +1,11 @@
 # -*- encoding: utf-8 -*-
 lib = File.expand_path('../lib/', __FILE__)
 $:.unshift lib unless $:.include?(lib)
+require 'cfn-flow/version'
 
 Gem::Specification.new do |s|
   s.name = 'cfn-flow'
-  s.version = '0.2.1'
+  s.version = CfnFlow::VERSION
   s.license = 'MIT'
 
   s.authors = ["Aaron Suggs"]
