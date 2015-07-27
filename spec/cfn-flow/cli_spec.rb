@@ -99,6 +99,57 @@ describe 'CfnFlow::CLI' do
     end
   end
 
+  describe '#deploy' do
+
+    it 'succeeds' do
+      Aws.config[:cloudformation]= {
+        stub_responses: {
+          describe_stacks: { stacks: [ stub_stack_data(stack_name: 'cfn-flow-spec-stack') ] },
+          describe_stack_events: { stack_events: [ stub_event_data ] },
+        }
+      }
+      out, err = capture_io { cli.start [:deploy, 'test-env'] }
+
+      out.must_match "Launching stack #{CfnFlow.config['stack']['stack_name']}"
+      out.must_match "Polling for events..."
+      out.must_match "CREATE_COMPLETE"
+      out.wont_match 'Finding stacks to cleanup'
+      err.must_equal ''
+    end
+
+    it 'can fail with a validation error' do
+      Aws.config[:cloudformation]= {
+        stub_responses: { create_stack: 'ValidationError' }
+      }
+
+      out, err = capture_io { cli.start [:deploy, 'test-env'] }
+      out.must_equal ''
+      err.must_match 'error'
+
+    end
+
+    it 'can cleanup' do
+
+      # Stubbing hacks alert!
+      # The first time we call :describe_stacks, return the stack we launch.
+      # The second time, we're loading 'another-stack' to clean it up
+      stack_stubs = [
+        { stacks: [ stub_stack_data(stack_name: 'cfn-flow-spec-stack') ] },
+        { stacks: [ stub_stack_data(stack_name: 'another-stack') ] }
+      ]
+      Aws.config[:cloudformation]= {
+        stub_responses: {
+          describe_stacks: stack_stubs,
+          describe_stack_events: { stack_events: [ stub_event_data ] },
+        }
+      }
+
+      Thor::LineEditor.stub :readline, "yes" do
+        out, err = capture_io { cli.start [:deploy, 'production', '--cleanup'] }
+        out.must_match 'Finding stacks to clean up'
+        out.must_match 'Deleted stack another-stack'
+        err.must_equal ''
+      end
     end
 
   end
@@ -114,18 +165,7 @@ describe 'CfnFlow::CLI' do
       before do
         Aws.config[:cloudformation]= {
           stub_responses: {
-            describe_stacks: {
-              stacks: [
-                { stack_name: "mystack",
-                  stack_status: 'CREATE_COMPLETE',
-                  creation_time: Time.now,
-                  tags: [
-                    {key: 'CfnFlowService', value: CfnFlow.service},
-                    {key: 'CfnFlowEnvironment', value: 'production'}
-                  ]
-                }
-              ]
-            }
+            describe_stacks: { stacks: [ stub_stack_data ] }
           }
         }
       end
