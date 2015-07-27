@@ -122,13 +122,47 @@ describe 'CfnFlow' do
     end
   end
 
-  it '.cfn_client' do
-    subject.cfn_client.must_be_kind_of Aws::CloudFormation::Client
+  describe '.cfn_client' do
+    it 'should work' do
+      subject.cfn_client.must_be_kind_of Aws::CloudFormation::Client
+    end
+
+    describe 'aws region' do
+      it 'should default to the env region' do
+        ENV['AWS_REGION'] = 'env-region'
+        subject.cfn_client.config.region.must_equal 'env-region'
+      end
+
+      it 'can be overridden with config' do
+        ENV['AWS_REGION'] = 'env-region'
+        subject.instance_variable_set(:@config, {region: 'config-region' })
+        subject.cfn_client.config.region.must_equal 'config-region'
+      end
+    end
+
   end
 
-  it '.cfn_resource' do
-    subject.cfn_resource.must_be_kind_of Aws::CloudFormation::Resource
-    subject.cfn_resource.client.config.retry_limit.must_equal 10
+  describe '.cfn_resource' do
+    it 'should work' do
+      subject.cfn_resource.must_be_kind_of Aws::CloudFormation::Resource
+    end
+
+    it 'should set a retry_limit' do
+      subject.cfn_resource.client.config.retry_limit.must_equal 10
+    end
+
+    describe 'aws region' do
+      it 'should default to the env region' do
+        ENV['AWS_REGION'] = 'env-region'
+        subject.cfn_client.config.region.must_equal 'env-region'
+      end
+
+      it 'can be overridden with config' do
+        ENV['AWS_REGION'] = 'env-region'
+        subject.instance_variable_set(:@config, {region: 'config-region' })
+        subject.cfn_client.config.region.must_equal 'config-region'
+      end
+    end
   end
 
   describe '.exit_on_failure?' do
