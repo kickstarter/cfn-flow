@@ -57,6 +57,17 @@ describe 'CfnFlow::CLI' do
       out.split("\n").size.must_equal 4
     end
 
+    it 'uses the dev-name' do
+      out, _ = capture_io { cli.start [:publish, template] }
+      out.must_match("dev/#{ENV['CFN_FLOW_DEV_NAME']}")
+    end
+
+    it 'can take a dev-name argument' do
+      name = 'a-new-dev-name'
+      out, _ = capture_io { cli.start [:publish, template, '--dev-name', name] }
+      out.must_match("dev/#{name}")
+    end
+
     it 'can take a release argument' do
       release = 'v2.0'
       out, _ = capture_io { cli.start [:publish, template, '--release', release] }
