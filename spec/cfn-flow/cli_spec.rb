@@ -117,6 +117,17 @@ describe 'CfnFlow::CLI' do
       err.must_equal ''
     end
 
+    it 'exposes the environmont as an env var' do
+       Aws.config[:cloudformation]= {
+        stub_responses: {
+          describe_stacks: { stacks: [ stub_stack_data(stack_name: 'cfn-flow-spec-stack') ] },
+          describe_stack_events: { stack_events: [ stub_event_data ] },
+        }
+      }
+      _ = capture_io { cli.start [:deploy, 'test-env'] }
+      ENV['CFN_FLOW_ENVIRONMENT'].must_equal 'test-env'
+    end
+
     it 'can fail with a validation error' do
       Aws.config[:cloudformation]= {
         stub_responses: { create_stack: 'ValidationError' }

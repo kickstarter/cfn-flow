@@ -54,6 +54,8 @@ module CfnFlow
     desc 'deploy ENVIRONMENT', 'Launch a stack'
     method_option :cleanup, type: :boolean, desc: 'Prompt to shutdown other stacks in ENVIRONMENT after launching'
     def deploy(environment)
+      # Export environment as an env var so it can be interpolated in config
+      ENV['CFN_FLOW_ENVIRONMENT'] = environment
 
       begin
         params = CfnFlow.stack_params(environment)
