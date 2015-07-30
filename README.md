@@ -1,17 +1,37 @@
 # cfn-flow
-An opinionated command-line workflow for developing [AWS CloudFormation](https://aws.amazon.com/cloudformation/) templates and deploying stacks.
+`cfn-flow` is an opinionated command-line workflow for developing [AWS CloudFormation](https://aws.amazon.com/cloudformation/) templates and deploying stacks.
 
-Track template changes in git and publish versioned releases to AWS S3.
-
-Deploy stacks using a standard, reliable process with extensible
-configuration in git.
+It provides a *simple*, *standard*, and *flexible* process for using CloudFormation, ideal for DevOps-style organizations.
 
 #### Opinions
 
-1. *Optimize for onboarding.* The workflow should be simple to learn & understand.
-2. *Optimize for happiness.* The workflow should be easy and enjoyable to use.
-3. *Auditable changes.* Know who changed what when. Leverage git change history.
-4. *Immutable releases.* The code in a release never changes.
+CloudFormation is a wonderful tool for provisioning AWS infrastructure. But it
+affords several opportunities to create unwieldy templates and brittle CloudFormation stacks.
+
+`cfn-flow` introduces a consist, convenient, workflow that encourages better template organization
+and deploy practice.
+
+1. *Optimize for happiness.* The workflow should be easy and enjoyable to use.
+2. *Optimize for onboarding.* The workflow should be simple to learn & understand.
+3. *Auditable changes.* Know who changed what when. Leverage git history.
+4. *Immutable releases.* The code in a release never changes. To make a change,
+   launch a new stack.
+
+## How it works
+
+At it's simplest, it's a directory with `cfn-flow.yml`, and a template.
+
+#### Services
+
+A thing.
+
+It comprises resources that all change together.
+
+#### Environments
+
+An instance of that thing
+
+
 
 ## Installation
 
@@ -37,6 +57,10 @@ Launching a CloudFormation stack:
 ```
 cfn-flow deploy production
 ```
+
+#### AWS credentials
+
+Set your AWS credentials so they can be found by the AWS SDK for Ruby ([details here](http://docs.aws.amazon.com/AWSSdkDocsRuby/latest/DeveloperGuide/set-up-creds.html)), e.g. using the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables.
 
 ## Configuration
 
@@ -81,6 +105,13 @@ templates:
   bucket: MyS3Bucket
   s3_prefix: 'My/S3/Prefix'
 
+##
+# Stacks
+#
+# These are the arguments passed when launching a new stack.
+# It's nearly identical to the create_stack args in the ruby sdk, except
+# parameters and tags are hashes. See http://amzn.to/1M0nBuq
+
 stack:
   stack_name: MyService-<%= Time.now.to_i %>
     template_body: path/to/template.yml
@@ -97,12 +128,22 @@ stack:
     stack_policy_body: "StackPolicyBody",
     stack_policy_url: "StackPolicyURL",
     tags:
+      # Whatever you want.
+      # Note that `cfn-flow` automatically adds two tags: `CfnFlowService` and `CfnFlowEnvironment`
       TagKey: TagValue
       # Who launched this stack
       Deployer: <%= ENV['USER'] %>
       # Tag production and development environments for accounting
       BillingType: <%= ENV['CFN_FLOW_ENVIRONMENT'] == 'production' ?  'production' : 'development' %>
 ```
+
+### UX improvements:
+
+- YAML (comments, debugging)
+- ERB interpolation
+- Terse param/tag syntax
+- Read templates from local path
+
 
 #### Dev mode (default)
 
@@ -145,45 +186,6 @@ directory.
 
 Inspecting the differences between releases is possible using `git log` and `git
 diff`.
-
-## Configuration
-
-You can configure cfn-flow defaults by creating a `cfn-flow.yml` file in same
-directory you run `cfn-flow` (presumably the root of your project).
-
-Settings in the configuration file are overridden by environment variables. And
-environment variables are overridden by command line arguments.
-
-```
-# cfn-flow.yml in the root of your project
-# You can specify an alternative path by setting the CFN_FLOW_CONFIG environment
-# variable.
-#
-# All options in this config can be overridden with command line arguments
----
-# S3 bucket where templates are uploaded. No default.
-# Override with CFN_FLOW_BUCKET env var
-bucket: 'my-s3-bucket'
-
-# S3 path prefix. Default: none
-# Override with CFN_FLOW_TO env var
-to: my/project/prefix
-
-# Local path in which to recursively search for templates. Default: .
-# Override with CFN_FLOW_FROM env var
-from: my/local/prefix
-
-# AWS Region
-# Override with AWS_REGION env var
-region: us-east-1 # AWS region
-```
-
-#### AWS credentials
-
-AWS credentials can only be set using the
-`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` environment variables; or by
-using an EC2 instance's IAM role.
-
 
 ## Sweet Features
 
