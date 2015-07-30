@@ -1,7 +1,7 @@
 # cfn-flow
 An opinionated command-line workflow for developing [AWS CloudFormation](https://aws.amazon.com/cloudformation/) templates and deploying stacks.
 
-Track template changes in git and upload versioned releases to AWS S3.
+Track template changes in git and publish versioned releases to AWS S3.
 
 Deploy stacks using a standard, reliable process with extensible
 configuration in git.
@@ -10,7 +10,7 @@ configuration in git.
 
 1. *Optimize for onboarding.* The workflow should be simple to learn & understand.
 2. *Optimize for happiness.* The workflow should be easy and enjoyable to use.
-3. *Auditable history.* Know who changed what when. Leverage git for auditing.
+3. *Auditable changes.* Know who changed what when. Leverage git change history.
 4. *Immutable releases.* The code in a release never changes.
 
 ## Installation
@@ -27,6 +27,81 @@ The `git` command is also needed.
 Poke around:
 ```
 cfn-flow help
+
+cfn-flow help COMMAND
+# E.g.:
+cfn-flow help deploy
+```
+
+Launching a CloudFormation stack:
+```
+cfn-flow deploy production
+```
+
+## Configuration
+
+`cfn-flow` looks for `./cfn-flow.yml` for stack and template configuration.
+You can override this path by setting the `CFN_FLOW_CONFIG_PATH` environment
+variable to another path.
+
+Here's a minimal `cfn-flow.yml` config file:
+
+```yaml
+# Required service name
+service: MyService
+
+# Minimal configuration for launching the stack.
+stack:
+  # Stack name uses embedded ruby to support dynamic values
+  stack_name: MyService-<%= Time.now.to_i %>
+  # Required: *either* template_url or template_body
+  template_body: path/to/template.json
+  # Alternatively:
+  # template_url: https://MyS3Bucket.s3.amazonaws.com/MyPrefix/release/abc123/template.json
+```
+
+And here's a maximal config file:
+
+```yaml
+---
+# Example cfn-flow.yml
+
+service: MyService
+
+# Set the AWS region here to override or avoid setting the AWS_REGION env var
+region: us-east-1
+
+##
+# Templates
+#
+# These define where templates will get published.
+#   $ cfn-flow publish --release my-cfn-template.json
+#   Published url: https://MyS3Bucket.s3.amazonaws.com/My/S3/Prefix/<git sha>/my-cfn-template.json
+templates:
+  bucket: MyS3Bucket
+  s3_prefix: 'My/S3/Prefix'
+
+stack:
+  stack_name: MyService-<%= Time.now.to_i %>
+    template_body: path/to/template.yml
+    template_url: http://...
+    parameters:
+      # Your parameters, e.g.:
+      vpcid: vpc-1234
+      ami: ami-abcd
+    disable_rollback: true,
+    timeout_in_minutes: 1,
+    notification_arns: ["NotificationARN"],
+    capabilities: ["CAPABILITY_IAM"], # This stack does IAM stuff
+    on_failure: "DO_NOTHING", # either DO_NOTHING, ROLLBACK, DELETE
+    stack_policy_body: "StackPolicyBody",
+    stack_policy_url: "StackPolicyURL",
+    tags:
+      TagKey: TagValue
+      # Who launched this stack
+      Deployer: <%= ENV['USER'] %>
+      # Tag production and development environments for accounting
+      BillingType: <%= ENV['CFN_FLOW_ENVIRONMENT'] == 'production' ?  'production' : 'development' %>
 ```
 
 #### Dev mode (default)
