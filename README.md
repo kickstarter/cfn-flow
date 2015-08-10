@@ -5,11 +5,8 @@ It provides a *simple*, *standard*, and *flexible* process for using CloudFormat
 
 #### Opinions
 
-CloudFormation is a wonderful tool for provisioning AWS infrastructure. But it
-affords several opportunities to create unwieldy templates and brittle CloudFormation stacks.
-
-`cfn-flow` introduces a consist, convenient, workflow that encourages better template organization
-and deploy practice.
+`cfn-flow` introduces a consist, convenient workflow that encourages good template organization
+and deploy practices.
 
 1. *Optimize for happiness.* The workflow should be easy and enjoyable to use.
 2. *Optimize for onboarding.* The workflow should be simple to learn & understand.
@@ -19,16 +16,32 @@ and deploy practice.
 
 ## How it works
 
-At it's simplest, it's a directory with `cfn-flow.yml`, and a template.
+`cfn-flow` is basically directory with `cfn-flow.yml`, and a template.
+Presumably your app code is in the same directory, but it doesn't have to be.
+
+There are two key concepts for `cfn-flow`, **services** and **environments**.
 
 #### Services
 
+A service
+
+E.g., a web app tier that combines an ELB, LaunchConfig, and AutoScalingGroup
+
+Or a background processing app that consumes events from an SQS queue or Kinesis
+stream.
+
+
 A thing.
 
-It comprises resources that all change together.
+It comprises resources that all change together. 
+
+Design principles:
+- all resources change together
+- Resources that do not change across deploys should not be part of the service.
 
 #### Environments
 
+An environment is an instantio
 An instance of that thing
 
 
