@@ -38,11 +38,15 @@ class Minitest::Spec
     Aws.config.delete(:cloudformation)
   end
 
+  def memo_now
+    @now = Time.now
+  end
+
   def stub_stack_data(attrs = {})
     {
       stack_name: "mystack",
       stack_status: 'CREATE_COMPLETE',
-      creation_time: Time.now,
+      creation_time: memo_now,
       tags: [
         {key: 'CfnFlowService', value: CfnFlow.service},
         {key: 'CfnFlowEnvironment', value: 'production'}

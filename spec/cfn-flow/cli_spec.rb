@@ -182,13 +182,13 @@ describe 'CfnFlow::CLI' do
       end
       it 'should print the stack' do
         out, err = capture_io { cli.start [:list] }
-        out.must_match(/mystack\s+production\s+CREATE_COMPLETE/)
+        out.must_match(/mystack\s+production\s+CREATE_COMPLETE\s+#{memo_now.utc}/)
         err.must_equal ''
       end
 
       it 'should print the header' do
         out, _ = capture_io { cli.start [:list] }
-        out.must_match(/NAME\s+ENVIRONMENT\s+STATUS/)
+        out.must_match(/NAME\s+ENVIRONMENT\s+STATUS\s+CREATED/)
       end
 
       it 'should print stacks when passed an environment' do
@@ -213,7 +213,7 @@ describe 'CfnFlow::CLI' do
               stacks: [
                 { stack_name: "mystack",
                   stack_status: 'CREATE_COMPLETE',
-                  creation_time: Time.now,
+                  creation_time: memo_now,
                   tags: [
                     {key: 'CfnFlowService', value: 'none-such-service'},
                     {key: 'CfnFlowEnvironment', value: 'production'}

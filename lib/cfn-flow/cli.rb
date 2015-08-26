@@ -95,12 +95,12 @@ module CfnFlow
 
       return if stacks.empty?
 
-      table_header = options['no-header'] ? [] : [['NAME',  'ENVIRONMENT', 'STATUS']]
+      table_header = options['no-header'] ? [] : [['NAME',  'ENVIRONMENT', 'STATUS', 'CREATED']]
       table_data = stacks.map do |s|
         env_tag = s.tags.detect {|tag| tag.key == 'CfnFlowEnvironment'}
         env = env_tag ? env_tag.value : 'NONE'
 
-        [ s.name, env, s.stack_status ]
+        [ s.name, env, s.stack_status, s.creation_time ]
       end
 
       print_table(table_header + table_data)
