@@ -1,6 +1,5 @@
 ---
 service: cfn-flow-specs
-region: us-east-1
 templates:
   s3_bucket: test-bucket
   s3_prefix: test-prefix

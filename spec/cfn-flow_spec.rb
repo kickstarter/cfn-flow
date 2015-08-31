@@ -135,7 +135,7 @@ describe 'CfnFlow' do
 
       it 'can be overridden with config' do
         ENV['AWS_REGION'] = 'env-region'
-        subject.instance_variable_set(:@config, {region: 'config-region' })
+        subject.instance_variable_set(:@config, {'region' => 'config-region' })
         subject.cfn_client.config.region.must_equal 'config-region'
       end
     end
@@ -159,7 +159,7 @@ describe 'CfnFlow' do
 
       it 'can be overridden with config' do
         ENV['AWS_REGION'] = 'env-region'
-        subject.instance_variable_set(:@config, {region: 'config-region' })
+        subject.instance_variable_set(:@config, {'region' => 'config-region' })
         subject.cfn_client.config.region.must_equal 'config-region'
       end
     end

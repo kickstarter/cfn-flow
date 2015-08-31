@@ -99,14 +99,14 @@ module CfnFlow
     ##
     # Aws Clients
     def cfn_client
-      @cfn_client ||= Aws::CloudFormation::Client.new(region: config[:region] || ENV['AWS_REGION'])
+      @cfn_client ||= Aws::CloudFormation::Client.new(region: config['region'] || ENV['AWS_REGION'])
     end
 
     def cfn_resource
       # NB: increase default retry limit to avoid throttling errors iterating over stacks.
       # See https://github.com/aws/aws-sdk-ruby/issues/705
       @cfn_resource ||= Aws::CloudFormation::Resource.new(
-        region: config[:region] || ENV['AWS_REGION'],
+        region: config['region'] || ENV['AWS_REGION'],
         retry_limit: 10
       )
     end
