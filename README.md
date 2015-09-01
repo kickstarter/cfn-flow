@@ -122,6 +122,7 @@ stack:
   # Stack name uses embedded ruby to support dynamic values
   stack_name: MyService-<%= Time.now.to_i %>
   # Required: *either* template_url or template_body
+  # NB: template_body is a local path to the template
   template_body: path/to/template.json
   # Alternatively:
   # template_url: https://MyS3Bucket.s3.amazonaws.com/MyPrefix/release/abc123/template.json
@@ -157,6 +158,7 @@ templates:
 
 stack:
   stack_name: MyService-<%= Time.now.to_i %>
+    # NB: template_body is a local path to the template
     template_body: path/to/template.yml
     template_url: http://...
     parameters:
@@ -182,88 +184,34 @@ stack:
 
 ### UX improvements:
 
-- YAML (comments, debugging)
-- ERB interpolation
-- Terse param/tag syntax
-- Read templates from local path
-
-
-#### Dev mode (default)
-
-Dev mode allows you to quickly test template changes.
-`cfn-flow` validates all templates and uploads them to your personal prefix, overwriting existing templates.
-
-Dev mode does not verify that your local changes are
-committed to git (as opposed to release mode).
-
-You should use dev mode for testing & verifying changes in non-production stacks.
-
-```
-# Set a personal name to prefix your templates.
-export CFN_FLOW_DEV_NAME=aaron
-
-# Validate and upload all CloudFormation templates in your working directory to
-s3://my-bucket/dev/aaron/*
-# NB that this overwrites existing templates in your CFN_FLOW_DEV_NAME
-namespace.
-
-cfn-flow
-```
-
-You can launch or update test stacks using your dev template path to quickly test your
-template changes.
-
-#### Release mode
-
-Release mode publishes your templates to a versioned S3 path, and pushes a git
-tag of the version.
-
-```
-# uploads templates to `s3://my-bucket/release/<git sha>/*`
-tag
-cfn-flow --release
-```
-
-Release mode ensures there are no uncommitted changes in your git working
-directory.
-
-Inspecting the differences between releases is possible using `git log` and `git
-diff`.
-
-## Sweet Features
+`cfn-flow` includes a few developer-friendly features:
 
 #### YAML > JSON
 
 `cfn-flow` lets you write templates in either JSON or
 [YAML](http://www.yaml.org). YAML is a superset of JSON that allows a terser,
-less cluttered syntax, inline comments, and code re-use with variables. YAML
-templates are transparently converted to JSON when uploaded to S3 for use in
-CloudFormation stacks.
+less cluttered syntax, inline comments, and code re-use with anchors (like
+variables). YAML templates are transparently converted to JSON when uploaded to
+S3 for use in CloudFormation stacks.
 
-#### Use versions in nested stack template URLs
+Note that you can use JSON snippets inside YAML templates. JSON is always valid
+YAML.
 
-`cfn-flow` works great with [nested stack
-resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-stack.html). Use [Fn::Join](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/intrinsic-function-reference-join.html) to construct the `TemplateURL` from a parameter:
+#### Embedded ruby in `cfn-flow.yml`
 
-```
-{
-   "Type" : "AWS::CloudFormation::Stack",
-   "Properties" : {
-      "TemplateURL" : {
-        "Fn::Join" : [ ":",
-          [ "https://s3.amazonaws.com/my-bucket", {"Ref": "prefix"}, "my-template.json" ]
-          ]
-      }
-   }
-}
+To allow dynamic/programatic attributes, use
+[ERB](https://en.wikipedia.org/wiki/ERuby) in `cfn-flow.yml`. For example:
+
+```yaml
+stack:
+  name: my-stack-<%= Time.now.to_i %>
+  ...
+  parameters:
+    git_sha: <%= `git rev-parse --verify HEAD`.chomp %>
 ```
 
-While testing, set the `prefix` parameter to a dev prefix like `dev/aaron`. When you're confident your changes work, release them with cfn-flow and change the `prefix` parameter to `release/<git sha>` for production.
+## License
 
-#### Continuous integration
+Copyright Kickstarter, Inc.
 
-#### Github commit status
-
-#### Minimal AWS credentials
-
-TODO: example IAM policy
+Released under an [MIT License](http://opensource.org/licenses/MIT).
