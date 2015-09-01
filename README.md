@@ -1,5 +1,5 @@
 # cfn-flow
-`cfn-flow` is an opinionated command-line workflow for developing [AWS CloudFormation](https://aws.amazon.com/cloudformation/) templates and deploying stacks.
+`cfn-flow` is an command-line tool for developing [AWS CloudFormation](https://aws.amazon.com/cloudformation/) templates and deploying stacks.
 
 It provides a *simple*, *standard*, and *flexible* process for using CloudFormation, ideal for DevOps-style organizations.
 
