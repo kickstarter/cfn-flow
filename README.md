@@ -210,6 +210,115 @@ stack:
     git_sha: <%= `git rev-parse --verify HEAD`.chomp %>
 ```
 
+## Usage
+
+### Working with stacks
+
+`cfn-flow` automatically sets two tags on any stack it launches:
+
+| Name | example value |
+---
+| `CfnFlowService` | `myapp` |
+| `CfnFlowEnvironment` | `production` |
+
+These tags let `cfn-flow` associate stacks back to services & environments.
+
+#### `cfn-flow deploy ENVIRONMENT`
+
+Launches a stack in ENVIRONMENT. E.g. `cfn-flow deploy production`
+
+To be automatically prompted to shut down other stacks in the environment after
+deploying, add the `--cleanup` option.
+
+#### `cfn-flow list ENVIRONMENT`
+
+Show running stacks for ENVIRONMENT.
+
+```
+$ cfn-flow list production
+
+myapp-production-aaa (CREATE_COMPLETE)
+myapp-production-bbb (CREATE_FAILED)
+```
+
+#### `cfn-flow delete STACK`
+
+Deletes a stack.
+
+```
+$ cfn-flow delete myapp-production-aaa
+```
+
+#### `cfn-flow show STACK`
+
+Show the status of STACK.
+
+#### `cfn-flow events STACK`
+
+List events for STACK
+
+Use the `--tail` option to poll for new events until the stack status is no
+longer `*_IN_PROGRESS`
+
+### Common workflows:
+
+#### Deploying to production
+
+```
+# Launch a new stack for the current git commit
+$ cfn-flow deploy production
+Launching stack myapp-production-abc123
+# ... wait for it to be ready
+
+# See the other stacks
+$ cfn-deploy list production
+
+myapp-production-abc123 CREATE_COMPLETE
+myapp-production-xyz987 CREATE_COMPLETE
+
+# Shut down the old stack
+$ cfn-flow delete myapp-production-xyz987
+
+### Launching a development environment
+
+Launch a new stack for `myenv` environment
+
+```
+cfn-flow deploy myenv
+```
+
+### Working with templates
+
+#### `cfn-flow validate`
+
+```
+# Runs validate-template on all templates.
+# returns an error on any failure.
+# does not persist to S3
+
+$ cfn-flow validate path/to/template.yml
+```
+
+#### `cfn-flow publish`
+
+Publish templates to S3 with immutable release names, or overwrite "dev names"
+for quicker testing. *This is only needed if you want to use nested stack resources.*
+
+```
+$ cfn-flow publish path/to/template.yml
+# validates & uploads templates to dev path
+# Env var CFN_FLOW_DEV_NAME=aaron
+# E.g. https://mybucket.s3.amazonaws.com/myprefix/dev/aaron/mytemplate.yml
+
+$ cfn-flow upload --release
+# validates & uploads templates for current git sha
+# E.g. https://mybucket.s3.amazonaws.com/myprefix/deadbeef/mytemplate.yml
+
+$ cfn-flow upload --release=v1.0.0
+# Upload templates for an arbitrary release name
+# E.g. https://mybucket.s3.amazonaws.com/myprefix/v1.0.0/mytemplate.yml
+```
+
 ## License
 
 Copyright Kickstarter, Inc.
