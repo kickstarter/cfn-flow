@@ -5,11 +5,8 @@ It provides a *simple*, *standard*, and *flexible* process for using CloudFormat
 
 #### Opinions
 
-CloudFormation is a wonderful tool for provisioning AWS infrastructure. But it
-affords several opportunities to create unwieldy templates and brittle CloudFormation stacks.
-
-`cfn-flow` introduces a consist, convenient, workflow that encourages better template organization
-and deploy practice.
+`cfn-flow` introduces a consist, convenient workflow that encourages good template organization
+and deploy practices.
 
 1. *Optimize for happiness.* The workflow should be easy and enjoyable to use.
 2. *Optimize for onboarding.* The workflow should be simple to learn & understand.
@@ -17,21 +14,8 @@ and deploy practice.
 4. *Immutable releases.* The code in a release never changes. To make a change,
    launch a new stack.
 
-## How it works
-
-At it's simplest, it's a directory with `cfn-flow.yml`, and a template.
-
-#### Services
-
-A thing.
-
-It comprises resources that all change together.
-
-#### Environments
-
-An instance of that thing
-
-
+The features & implementation of `cfn-flow` itself must also be simple. This follows the Unix philosophy of "[worse is
+better](http://www.jwz.org/doc/worse-is-better.html)". `cfn-flow` values a simple design and implementation, and being composable with other workflows over handling every edge case out of the box.
 
 ## Installation
 
@@ -57,6 +41,65 @@ Launching a CloudFormation stack:
 ```
 cfn-flow deploy production
 ```
+
+## How it works
+
+`cfn-flow` works from a directory containing a `cfn-flow.yml` config file, and a CloudFormation template.
+Presumably your app code is in the same directory, but it doesn't have to be.
+
+There are two key concepts for `cfn-flow`: **services** and **environments**.
+
+#### Services
+
+A service is a name for your project and comprises a set of resources that
+change together. Each service has it's own `cfn-flow.yml` config file. A service
+can be instantiated as several distinct environments.
+
+For example, a `WebApp` service could have a CloudFormation template that
+creates an ELB, LaunchConfig, and AutoScalingGroup resources.
+
+All the resources in a service change together. Deploying the `WebApp`
+service to an environment will create a new ELB, LaunchConfig, and AutoScalingGroup.
+
+Resources that *do not* change across deploys are not part of the service (from
+`cfn-flow`'s perspective).
+Say all `WebApp` EC2 servers connect to a long-running RDS database. That
+database is not part of the cfn-flow service because it should re-used across
+deploys. The database is a *backing resource* the service uses; not part
+of the service itself.
+
+#### Environments
+
+An environment is an particular instantiation of a service. For example, you
+could deploy your `WebApp` service to both a `development` and `production` environment.
+
+`cfn-flow` is designed to support arbitrary environments like git supports
+arbitrary branches.
+
+Then `CFN_FLOW_ENVIRONMENT` environment variable can be used in
+`cfn-flow.yml` to use the environment in your template parameters.
+
+#### Deploying
+
+Deployments consist of launching a *new stack* in a particular environment, then
+shutting down the old stack. For example:
+
+```
+cfn-flow deploy ENVIRONMENT --cleanup
+```
+
+This follows the [red/black](http://techblog.netflix.com/2013/08/deploying-netflix-api.html)
+or [blue/green](http://martinfowler.com/bliki/BlueGreenDeployment.html)
+deployment pattern.
+
+After verifying the new stack is working correctly, the deployer is expected to
+delete the old stack.
+
+To roll back a bad deploy, simply delete the *new* stack, while the *old*
+stack is running.
+
+Although CloudFormation supports updating existing stacks, `cfn-flow` prefers
+launching immutable stacks. Stack updates are more difficult to test than new stacks; and there's less chance of a deployment error disrupting or breaking important resources.
 
 #### AWS credentials
 
