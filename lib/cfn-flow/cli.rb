@@ -36,8 +36,6 @@ module CfnFlow
       end
 
       validate(*templates)
-      # TODO: check git is clean before releasing
-      #CfnFlow::Git.check_status if options['release']
 
       release = publish_release
       templates.each do |path|

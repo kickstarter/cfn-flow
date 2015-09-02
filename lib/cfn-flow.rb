@@ -17,7 +17,6 @@ module CfnFlow
       @config = YAML.load(
         ERB.new( File.read(config_path) ).result(binding)
       )
-      # TODO: Validate config?
     end
 
     def config_loaded?
