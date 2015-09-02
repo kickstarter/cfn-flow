@@ -216,10 +216,10 @@ stack:
 
 `cfn-flow` automatically sets two tags on any stack it launches:
 
-| Name | example value |
----
-| `CfnFlowService` | `myapp` |
-| `CfnFlowEnvironment` | `production` |
+Name | Example value
+--- | ---
+CfnFlowService | `myapp`
+CfnFlowEnvironment | `production`
 
 These tags let `cfn-flow` associate stacks back to services & environments.
 
@@ -260,7 +260,7 @@ List events for STACK
 Use the `--tail` option to poll for new events until the stack status is no
 longer `*_IN_PROGRESS`
 
-### Common workflows:
+### Common workflows
 
 #### Deploying to production
 
@@ -278,6 +278,7 @@ myapp-production-xyz987 CREATE_COMPLETE
 
 # Shut down the old stack
 $ cfn-flow delete myapp-production-xyz987
+```
 
 ### Launching a development environment
 
