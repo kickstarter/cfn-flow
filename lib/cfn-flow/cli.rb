@@ -28,7 +28,7 @@ module CfnFlow
 
     desc 'publish TEMPLATE [...]', 'Validate & upload templates'
     method_option 'dev-name', type: :string, desc: 'Personal development prefix'
-    method_option :release,   type: :string, desc: 'Upload release', lazy_default: CfnFlow::Git.sha
+    method_option :release,   type: :string, desc: 'Upload release', lazy_default: true
     method_option :verbose,   type: :boolean, desc: 'Verbose output', default: false
     def publish(*templates)
       if templates.empty?
@@ -164,7 +164,8 @@ module CfnFlow
     def publish_release
       # Add the release or dev name to the prefix
       if options[:release]
-        'release/' + options[:release]
+        release = options[:release] == true ? CfnFlow::Git.sha : options[:release]
+        'release/' + release
       elsif options['dev-name']
         'dev/' + options['dev-name']
       elsif ENV['CFN_FLOW_DEV_NAME']

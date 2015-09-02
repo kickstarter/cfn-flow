@@ -68,10 +68,18 @@ describe 'CfnFlow::CLI' do
       out.must_match("dev/#{name}")
     end
 
-    it 'can take a release argument' do
-      release = 'v2.0'
-      out, _ = capture_io { cli.start [:publish, template, '--release', release] }
-      out.must_match CfnFlow::Template.new(template).url("release/#{release}")
+    describe 'with --release' do
+      it 'defaults to git sha' do
+        sha = CfnFlow::Git.sha
+        out, _ = capture_io { cli.start [:publish, template, '--release'] }
+        out.must_match CfnFlow::Template.new(template).url("release/#{sha}")
+      end
+
+      it 'can take a value' do
+        release = 'v2.0'
+        out, _ = capture_io { cli.start [:publish, template, '--release', release] }
+        out.must_match CfnFlow::Template.new(template).url("release/#{release}")
+      end
     end
 
     it 'can fail with malformed templates' do
