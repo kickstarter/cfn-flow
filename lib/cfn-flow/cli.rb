@@ -141,6 +141,14 @@ module CfnFlow
       end
     end
 
+    ##
+    # Version command
+    desc "version", "Prints the version information"
+    def version
+      say CfnFlow::VERSION
+    end
+    map %w(-v --version) => :version
+
     private
     def find_stack_in_service(name)
       stack = CfnFlow.cfn_resource.stack(name).load

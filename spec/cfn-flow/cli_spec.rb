@@ -388,4 +388,22 @@ describe 'CfnFlow::CLI' do
     end
   end
 
+  describe '#version' do
+    let(:version) { CfnFlow::VERSION + "\n" }
+    it 'prints the version' do
+      out, _ = capture_io { cli.start [:version] }
+      out.must_equal version
+    end
+
+    it 'handles -v argument' do
+      out, _ = capture_io { cli.start ['-v'] }
+      out.must_equal version
+    end
+
+    it 'handles --version argument' do
+      out, _ = capture_io { cli.start ['--version'] }
+      out.must_equal version
+    end
+
+  end
 end
