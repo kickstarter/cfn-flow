@@ -28,8 +28,8 @@ The `git` command is also needed.
 
 ## Usage
 
-Poke around:
 ```
+# Get help
 cfn-flow help
 
 cfn-flow help COMMAND
@@ -37,7 +37,7 @@ cfn-flow help COMMAND
 cfn-flow help deploy
 ```
 
-Launching a CloudFormation stack:
+Launch a CloudFormation stack:
 ```
 cfn-flow deploy production
 ```
@@ -227,8 +227,7 @@ These tags let `cfn-flow` associate stacks back to services & environments.
 
 Launches a stack in ENVIRONMENT. E.g. `cfn-flow deploy production`
 
-To be automatically prompted to shut down other stacks in the environment after
-deploying, add the `--cleanup` option.
+Add the `--cleanup` option to be prompted to shut down other stacks in the environment.
 
 #### `cfn-flow list ENVIRONMENT`
 
