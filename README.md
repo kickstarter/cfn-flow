@@ -26,22 +26,6 @@ gem install cfn-flow
 
 The `git` command is also needed.
 
-## Usage
-
-```
-# Get help
-cfn-flow help
-
-cfn-flow help COMMAND
-# E.g.:
-cfn-flow help deploy
-```
-
-Launch a CloudFormation stack:
-```
-cfn-flow deploy production
-```
-
 ## How it works
 
 `cfn-flow` works from a directory containing a `cfn-flow.yml` config file, and a CloudFormation template.
@@ -76,8 +60,9 @@ could deploy your `WebApp` service to both a `development` and `production` envi
 `cfn-flow` is designed to support arbitrary environments like git supports
 arbitrary branches.
 
-Then `CFN_FLOW_ENVIRONMENT` environment variable can be used in
-`cfn-flow.yml` to use the environment in your template parameters.
+**Pro tip:** Use the `CFN_FLOW_ENVIRONMENT` environment variable in
+`cfn-flow.yml` config to use the environment in your template parameters.
+See [Configuration](#configuration) for examples.
 
 #### Deploying
 
@@ -157,7 +142,8 @@ templates:
 # parameters and tags are hashes. See http://amzn.to/1M0nBuq
 
 stack:
-  stack_name: MyService-<%= Time.now.to_i %>
+  # Use the CFN_FLOW_ENVIRONMENT var & git sha in stack name
+  stack_name: MyService-<%= ENV['CFN_FLOW_ENVIRONMENT'] %>-<%= `git rev-parse --short HEAD`.chomp %>
     # NB: template_body is a local path to the template
     template_body: path/to/template.yml
     template_url: http://...
@@ -211,6 +197,22 @@ stack:
 ```
 
 ## Usage
+
+Getting help:
+
+```
+# Get help
+cfn-flow help
+
+cfn-flow help COMMAND
+# E.g.:
+cfn-flow help deploy
+```
+
+Launch a CloudFormation stack:
+```
+cfn-flow deploy production
+```
 
 ### Working with stacks
 
@@ -302,7 +304,10 @@ $ cfn-flow validate path/to/template.yml
 #### `cfn-flow publish`
 
 Publish templates to S3 with immutable release names, or overwrite "dev names"
-for quicker testing. *This is only needed if you want to use nested stack resources.*
+for quicker testing.
+
+**Note:** Publishing to S3 is only needed if you want to use [nested stack resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-stack.html),
+ (that is, stacks that lainclude other stacks).
 
 ```
 $ cfn-flow publish path/to/template.yml
