@@ -1,5 +1,5 @@
 # cfn-flow
-`cfn-flow` is an command-line tool for developing [AWS CloudFormation](https://aws.amazon.com/cloudformation/) templates and deploying stacks.
+`cfn-flow` is a command-line tool for developing [AWS CloudFormation](https://aws.amazon.com/cloudformation/) templates and deploying stacks.
 
 It provides a *simple*, *standard*, and *flexible* process for using CloudFormation, ideal for DevOps-style organizations.
 
@@ -36,7 +36,7 @@ There are two key concepts for `cfn-flow`: **services** and **environments**.
 #### Services
 
 A service is a name for your project and comprises a set of resources that
-change together. Each service has it's own `cfn-flow.yml` config file. A service
+change together. Each service has its own `cfn-flow.yml` config file. A service
 can be instantiated as several distinct environments.
 
 For example, a `WebApp` service could have a CloudFormation template that
@@ -48,7 +48,7 @@ service to an environment will create a new ELB, LaunchConfig, and AutoScalingGr
 Resources that *do not* change across deploys are not part of the service (from
 `cfn-flow`'s perspective).
 Say all `WebApp` EC2 servers connect to a long-running RDS database. That
-database is not part of the cfn-flow service because it should re-used across
+database is not part of the cfn-flow service because it is re-used across
 deploys. The database is a *backing resource* the service uses; not part
 of the service itself.
 
@@ -185,7 +185,7 @@ YAML.
 
 #### Embedded ruby in `cfn-flow.yml`
 
-To allow dynamic/programatic attributes, use
+To allow dynamic/programmatic attributes, use
 [ERB](https://en.wikipedia.org/wiki/ERuby) in `cfn-flow.yml`. For example:
 
 ```yaml
