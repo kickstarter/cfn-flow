@@ -313,17 +313,24 @@ cfn-flow deploy myenv
 
 ### Working with templates
 
-#### `cfn-flow validate`
+#### Validate templates
 
 ```
-# Runs validate-template on all templates.
-# returns an error on any failure.
-# does not persist to S3
+cfn-flow validate TEMPLATE [...]
+```
 
+Validates CloudFormation templates; does not persist to S3.
+
+```
+# For example:
 $ cfn-flow validate path/to/template.yml
 ```
 
-#### `cfn-flow publish`
+#### Publish templates to S3
+
+```
+cfn-flow publish TEMPLATE [...]
+```
 
 Publish templates to S3 with immutable release names, or overwrite "dev names"
 for quicker testing.
@@ -332,6 +339,7 @@ for quicker testing.
  (that is, stacks that lainclude other stacks).
 
 ```
+# For example:
 $ cfn-flow publish path/to/template.yml
 # validates & uploads templates to dev path
 # Env var CFN_FLOW_DEV_NAME=aaron
