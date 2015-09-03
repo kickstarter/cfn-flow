@@ -35,8 +35,8 @@ There are two key concepts for `cfn-flow`: **services** and **environments**.
 
 #### Services
 
-A service is a name for your project and comprises a set of resources that
-change together. Each service has its own `cfn-flow.yml` config file. A service
+A service comprises a set of resources that change together.
+Each service has its own `cfn-flow.yml` config file. A service
 can be instantiated as several distinct environments.
 
 For example, a `WebApp` service could have a CloudFormation template that
@@ -168,7 +168,7 @@ stack:
       BillingType: <%= ENV['CFN_FLOW_ENVIRONMENT'] == 'production' ?  'production' : 'development' %>
 ```
 
-### UX improvements:
+## UX improvements:
 
 `cfn-flow` includes a few developer-friendly features:
 
@@ -225,41 +225,63 @@ CfnFlowEnvironment | `production`
 
 These tags let `cfn-flow` associate stacks back to services & environments.
 
-#### `cfn-flow deploy ENVIRONMENT`
+#### Deploy (launch) a stack
+
+```
+cfn-flow deploy ENVIRONMENT
+```
 
 Launches a stack in ENVIRONMENT. E.g. `cfn-flow deploy production`
 
 Add the `--cleanup` option to be prompted to shut down other stacks in the environment.
 
-#### `cfn-flow list ENVIRONMENT`
-
-Show running stacks for ENVIRONMENT.
+#### List stacks for your service or environment
 
 ```
+cfn-flow list [ENVIRONMENT]
+```
+
+Show all stacks running in your service, or just in an ENVIRONMENT.
+
+```
+# For example:
 $ cfn-flow list production
 
 myapp-production-aaa (CREATE_COMPLETE)
 myapp-production-bbb (CREATE_FAILED)
 ```
 
-#### `cfn-flow delete STACK`
-
-Deletes a stack.
+#### Inspect a stack
 
 ```
-$ cfn-flow delete myapp-production-aaa
+cfn-flow show STACK
 ```
-
-#### `cfn-flow show STACK`
 
 Show the status of STACK.
 
-#### `cfn-flow events STACK`
+#### Show stack events
+
+```
+cfn-flow events STACK
+```
 
 List events for STACK
 
 Use the `--tail` option to poll for new events until the stack status is no
 longer `*_IN_PROGRESS`
+
+#### Delete a stack
+
+```
+cfn-flow delete STACK
+```
+
+Deletes a stack.
+
+```
+# For example:
+$ cfn-flow delete myapp-production-aaa
+```
 
 ### Common workflows
 
