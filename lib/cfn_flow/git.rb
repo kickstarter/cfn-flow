@@ -1,4 +1,5 @@
 # Git helper module
+# TODO: extract as plugin
 class CfnFlow::Git
   class << self
 

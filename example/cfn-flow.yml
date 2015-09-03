@@ -1,0 +1,32 @@
+---
+# Example cfn-flow
+service: MyService
+region: us-east-1
+
+##
+# Templates
+#
+# These define where templates will get published.
+#   $ cfn-flow publish --release my-cfn-template.json
+#   ...
+#   Published: https://MyS3Bucket.s3.amazonaws.com/My/S3/Prefix/abc123/my-cfn-template.json
+templates:
+  bucket: MyS3Bucket
+  s3_prefix: /My/S3/Prefix
+
+stack:
+  stack_name: MyService-<%= Time.now.to_i %> # required
+    template_body: "TemplateBody",
+    template_url: "TemplateURL",
+    parameters:
+      ParameterKey: ParameterValue
+    disable_rollback: true,
+    timeout_in_minutes: 1,
+    notification_arns: ["NotificationARN"],
+    capabilities: ["CAPABILITY_IAM"], # accepts CAPABILITY_IAM
+    on_failure: "DO_NOTHING", # accepts DO_NOTHING, ROLLBACK, DELETE
+    stack_policy_body: "StackPolicyBody",
+    stack_policy_url: "StackPolicyURL",
+    tags:
+      TagKey: TagValue
+      Deployer: <%= ENV['USER'] %>

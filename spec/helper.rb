@@ -16,32 +16,60 @@ ENV['AWS_REGION'] = 'us-east-1'
 ENV['AWS_ACCESS_KEY_ID'] = 'test-key'
 ENV['AWS_SECRET_ACCESS_KEY'] = 'test-secret'
 ENV['CFN_FLOW_DEV_NAME'] = 'cfn-flow-specs'
+ENV['CFN_FLOW_CONFIG_PATH'] = 'spec/data/cfn-flow.yml'
+ENV['CFN_FLOW_EVENT_POLL_INTERVAL'] = '0'
 
 class Minitest::Spec
-  # From http://git.io/bcfh
-  def capture(stream = :stdout)
-    begin
-      stream = stream.to_s
-      eval "$#{stream} = StringIO.new"
-      yield
-      result = eval("$#{stream}").string
-    ensure
-      eval("$#{stream} = #{stream.upcase}")
-    end
+  before do
+    # Reset env between tests:
+    @orig_env = ENV.to_hash
 
-    result
+    # Disable exit on failure so CLI tests don't bomb out
+    CfnFlow.exit_on_failure = false
   end
 
-  # Reset env between tests
-  before { @orig_env = ENV.to_hash }
-  after  { ENV.clear; ENV.update(@orig_env) }
+  after do
+    # Reset env
+    ENV.clear
+    ENV.update(@orig_env)
 
-  # Reset stubs
-  after  {
+    # Reset stubs
     CfnFlow.clear!
     Aws.config.delete(:cloudformation)
-  }
+  end
 
-  # Disable exit on failure so CLI tests don't bomb out
-  before { CfnFlow.exit_on_failure = false }
+  def memo_now
+    @now = Time.now
+  end
+
+  def stub_stack_data(attrs = {})
+    {
+      stack_name: "mystack",
+      stack_status: 'CREATE_COMPLETE',
+      creation_time: memo_now,
+      tags: [
+        {key: 'CfnFlowService', value: CfnFlow.service},
+        {key: 'CfnFlowEnvironment', value: 'production'}
+      ]
+    }.merge(attrs)
+  end
+
+  def stub_event_data(attrs = {})
+    {
+      stack_id: 'mystack',
+      stack_name: 'mystack',
+      event_id: SecureRandom.hex,
+      resource_status: 'CREATE_COMPLETE',
+      logical_resource_id: 'stubbed-resource-id',
+      resource_type: 'stubbed-resource-type',
+      timestamp: Time.now
+    }.merge(attrs)
+  end
+
+  def stub_event(attrs = {})
+    data = stub_event_data(attrs)
+    id = data.delete(:event_id)
+    Aws::CloudFormation::Event.new(id: id, data: data)
+  end
+
 end

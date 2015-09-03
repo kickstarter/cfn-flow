@@ -1,6 +1,13 @@
 ---
-bucket: test-bucket
-prefix: test-prefix
-from: spec/data
-to: test-to
-region: us-east-1
+service: cfn-flow-specs
+templates:
+  s3_bucket: test-bucket
+  s3_prefix: test-prefix
+
+stack:
+  stack_name: cfn-flow-spec-stack
+  template_body: sqs.yml
+  parameters:
+    AlarmEMail: test@example.com
+  tags:
+    test_tag: hello world
