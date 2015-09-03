@@ -9,13 +9,13 @@ It provides a *simple*, *standard*, and *flexible* process for using CloudFormat
 
 - [Opinions](#opinions)
 - [Installation](#installation)
-- [How it works](#how-it-works)
+- [Key concepts](#key-concepts)
     - [Services](#services)
     - [Environments](#environments)
     - [Deploying](#deploying)
     - [AWS credentials](#aws-credentials)
 - [Configuration](#configuration)
-- [UX improvements:](#ux-improvements)
+- [UX improvements](#ux-improvements)
     - [YAML > JSON](#yaml--json)
     - [Embedded ruby in `cfn-flow.yml`](#embedded-ruby-in-cfn-flowyml)
 - [Usage](#usage)
@@ -58,7 +58,7 @@ gem install cfn-flow
 
 The `git` command is also needed.
 
-## How it works
+## Key concepts
 
 `cfn-flow` works from a directory containing a `cfn-flow.yml` config file, and a CloudFormation template.
 Presumably your app code is in the same directory, but it doesn't have to be.
@@ -199,7 +199,7 @@ stack:
       BillingType: <%= ENV['CFN_FLOW_ENVIRONMENT'] == 'production' ?  'production' : 'development' %>
 ```
 
-## UX improvements:
+## UX improvements
 
 `cfn-flow` includes a few developer-friendly features:
 
