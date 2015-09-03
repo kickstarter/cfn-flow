@@ -1,3 +1,36 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [cfn-flow](#cfn-flow)
+      - [Opinions](#opinions)
+  - [Installation](#installation)
+  - [How it works](#how-it-works)
+      - [Services](#services)
+      - [Environments](#environments)
+      - [Deploying](#deploying)
+      - [AWS credentials](#aws-credentials)
+  - [Configuration](#configuration)
+  - [UX improvements:](#ux-improvements)
+      - [YAML > JSON](#yaml--json)
+      - [Embedded ruby in `cfn-flow.yml`](#embedded-ruby-in-cfn-flowyml)
+  - [Usage](#usage)
+    - [Working with stacks](#working-with-stacks)
+      - [Deploy (launch) a stack](#deploy-launch-a-stack)
+      - [List stacks for your service or environment](#list-stacks-for-your-service-or-environment)
+      - [Inspect a stack](#inspect-a-stack)
+      - [Show stack events](#show-stack-events)
+      - [Delete a stack](#delete-a-stack)
+    - [Common workflows](#common-workflows)
+      - [Deploying to production](#deploying-to-production)
+    - [Launching a development environment](#launching-a-development-environment)
+    - [Working with templates](#working-with-templates)
+      - [Validate templates](#validate-templates)
+      - [Publish templates to S3](#publish-templates-to-s3)
+  - [License](#license)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # cfn-flow
 `cfn-flow` is a command-line tool for developing [AWS CloudFormation](https://aws.amazon.com/cloudformation/) templates and deploying stacks.
 
@@ -116,7 +149,6 @@ stack:
 And here's a maximal config file:
 
 ```yaml
----
 # Example cfn-flow.yml
 
 service: MyService
