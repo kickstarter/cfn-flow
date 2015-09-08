@@ -40,9 +40,9 @@ It provides a *simple*, *standard*, and *flexible* process for using CloudFormat
 `cfn-flow` introduces a consist, convenient workflow that encourages good template organization
 and deploy practices.
 
-1. *Optimize for happiness.* The workflow should be easy and enjoyable to use.
-2. *Optimize for onboarding.* The workflow should be simple to learn & understand.
-3. *Auditable changes.* Know who changed what when. Leverage git history.
+1. *Optimize for happiness.* The workflow should be easy & enjoyable to use.
+2. *Optimize for onboarding.* The workflow should be simple to learn, understand, & debug.
+3. *Auditable changes.* Know who changed what when & why. Leverage git history.
 4. *Immutable releases.* The code in a release never changes. To make a change,
    launch a new stack.
 
