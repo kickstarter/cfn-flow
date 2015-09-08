@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.license = 'MIT'
 
   s.authors = ["Aaron Suggs"]
-  s.description = "An opinionated worflow for AWS CloudFormation"
+  s.description = "A practical worflow for AWS CloudFormation"
   s.email = "aaron@ktheory.com"
 
   s.files = Dir.glob("{bin,lib}/**/*") + %w(Rakefile README.md)
