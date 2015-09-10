@@ -300,7 +300,7 @@ cfn-flow events STACK
 
 List events for STACK
 
-Use the `--tail` option to poll for new events until the stack status is no
+Use the `--poll` option to poll for new events until the stack status is no
 longer `*_IN_PROGRESS`
 
 #### Delete a stack
