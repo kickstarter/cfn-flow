@@ -49,6 +49,8 @@ and deploy practices.
 The features & implementation of `cfn-flow` itself must also be simple. This follows the Unix philosophy of "[worse is
 better](http://www.jwz.org/doc/worse-is-better.html)". `cfn-flow` values a simple design and implementation, and being composable with other workflows over handling every edge case out of the box.
 
+See [this introductory blog post](https://www.kickstarter.com/backing-and-hacking/introducing-cfn-flow-a-practical-workflow-for-aws-cloudformation) for our motivation behind `cfn-flow`.
+
 ## Installation
 
 Via [rubygems](https://rubygems.org/gems/cfn-flow):
