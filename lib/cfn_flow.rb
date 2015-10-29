@@ -39,7 +39,7 @@ module CfnFlow
       unless config['stack'].is_a? Hash
         raise Thor::Error.new("No stack defined in #{config_path}. Add 'stack: ...'.")
       end
-      params = StackParams.expand(config['stack'])
+      params = StackParams.expanded(config['stack'])
 
       params.
         add_tag('CfnFlowService' => service).

@@ -3,22 +3,22 @@ module CfnFlow
   # style of hash aws-sdk expects
   class StackParams < Hash
 
-    def self.expand(hash)
+    def self.expanded(hash)
       self[hash].
-        symbolized_keys.
-        expand_parameters.
-        expand_tags.
-        expand_template_body
+        with_symbolized_keys.
+        with_expanded_parameters.
+        with_expanded_tags.
+        with_expanded_template_body
     end
 
-    def symbolized_keys
+    def with_symbolized_keys
       self.inject(StackParams.new) do |accum, pair|
         key, value = pair
         accum.merge(key.to_sym => value)
       end
     end
 
-    def expand_parameters
+    def with_expanded_parameters
       return self unless self[:parameters].is_a? Hash
 
       expanded_params = self[:parameters].map do |key,value|
@@ -28,7 +28,7 @@ module CfnFlow
       self.merge(parameters: expanded_params)
     end
 
-    def expand_tags
+    def with_expanded_tags
       return self unless self[:tags].is_a? Hash
 
       tags = self[:tags].map do |key, value|
@@ -46,7 +46,7 @@ module CfnFlow
       self.merge(tags: tags)
     end
 
-    def expand_template_body
+    def with_expanded_template_body
       return self unless self[:template_body].is_a? String
       body = CfnFlow::Template.new(self[:template_body]).to_json
       self.merge(template_body: body)

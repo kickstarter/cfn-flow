@@ -7,19 +7,19 @@ describe 'CfnFlow::StackParams' do
     subject.new.must_be_kind_of Hash
   end
 
-  describe '.expand' do
+  describe '.expanded' do
     it "returns a StackParams hash" do
-      subject.expand({}).must_be_kind_of subject
+      subject.expanded({}).must_be_kind_of subject
     end
   end
 
-  describe '#symbolized_keys' do
+  describe '#with_symbolized_keys' do
     it 'works' do
-      subject[{'foo' => 1, :bar => true}].symbolized_keys.must_equal({foo: 1, bar: true})
+      subject[{'foo' => 1, :bar => true}].with_symbolized_keys.must_equal({foo: 1, bar: true})
     end
   end
 
-  describe '#expand_parameters' do
+  describe '#with_expanded_parameters' do
     it 'reformats parameters hash to array of hashes' do
       hash = {
         parameters: { 'k1' => 'v1', 'k2' => 'v2' }
@@ -32,7 +32,7 @@ describe 'CfnFlow::StackParams' do
         ]
       }
 
-      subject[hash].expand_parameters.must_equal expected
+      subject[hash].with_expanded_parameters.must_equal expected
     end
 
     describe 'with stack outputs' do
@@ -57,7 +57,7 @@ describe 'CfnFlow::StackParams' do
           parameters: [ {parameter_key: 'my-key', parameter_value: output_value} ]
         }
 
-        subject[hash].expand_parameters.must_equal expected
+        subject[hash].with_expanded_parameters.must_equal expected
       end
 
       it 'fetches stack outputs with implicit output key' do
@@ -70,16 +70,16 @@ describe 'CfnFlow::StackParams' do
           parameters: [ {parameter_key: output_key, parameter_value: output_value} ]
         }
 
-        subject[hash].expand_parameters.must_equal expected
+        subject[hash].with_expanded_parameters.must_equal expected
       end
     end
   end
 
-  describe '#expand_tags' do
+  describe '#with_expanded_tags' do
     it 'expands tags hash to array of hashes' do
       hash = {tags: {'k' => 'v'} }
       expected = {tags: [{key: 'k', value: 'v'}]}
-      subject[hash].expand_tags.must_equal expected
+      subject[hash].with_expanded_tags.must_equal expected
     end
   end
 
@@ -97,15 +97,15 @@ describe 'CfnFlow::StackParams' do
     end
   end
 
-  describe '#expand_template_body' do
+  describe '#with_expanded_template_body' do
     it 'does not expand invalid templates' do
       hash = { template_body: 'spec/data/invalid.yml' }
-      subject[hash].expand_template_body.must_equal hash
+      subject[hash].with_expanded_template_body.must_equal hash
     end
 
     it 'expands valid template paths' do
       template_path = 'spec/data/sqs.template'
-      result = subject[template_body: template_path].expand_template_body
+      result = subject[template_body: template_path].with_expanded_template_body
 
       result.must_equal({template_body: CfnFlow::Template.new(template_path).to_json})
     end
