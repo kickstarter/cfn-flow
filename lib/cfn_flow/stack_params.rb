@@ -22,15 +22,7 @@ module CfnFlow
       return self unless self[:parameters].is_a? Hash
 
       expanded_params = self[:parameters].map do |key,value|
-        # Dereference stack output params
-        if value.is_a?(Hash) && value.key?('stack')
-          stack_name = value['stack']
-          stack_output_name = value['output'] || key
-
-          value = CachedStack.get_output(stack: stack_name, output: stack_output_name)
-        end
-
-        { parameter_key: key, parameter_value: value }
+        { parameter_key: key, parameter_value: fetch_value(key, value) }
       end
 
       self.merge(parameters: expanded_params)
@@ -47,10 +39,10 @@ module CfnFlow
     end
 
     def add_tag(hash)
-      tags = self[:tags] || []
-      hash.each do |k,v|
-        tags << {key: k, value: v }
+      new_tags = hash.map do |k,v|
+        {key: k, value: v }
       end
+      tags = (self[:tags] || []) + new_tags
       self.merge(tags: tags)
     end
 
@@ -62,5 +54,18 @@ module CfnFlow
       # Do nothing
       self
     end
+
+    def fetch_value(key, value)
+      # Dereference stack output params
+      if value.is_a?(Hash) && value.key?('stack')
+        stack_name = value['stack']
+        stack_output_name = value['output'] || key
+
+        value = CachedStack.get_output(stack: stack_name, output: stack_output_name)
+      else
+        value
+      end
+    end
+    private :fetch_value
   end
 end
