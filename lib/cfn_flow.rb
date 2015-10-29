@@ -133,6 +133,7 @@ module CfnFlow
 end
 
 require 'cfn_flow/cached_stack'
+require 'cfn_flow/stack_params'
 require 'cfn_flow/template'
 require 'cfn_flow/git'
 require 'cfn_flow/event_presenter'
