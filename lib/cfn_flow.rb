@@ -113,6 +113,7 @@ module CfnFlow
     # Clear aws sdk clients & config (for tests)
     def clear!
       @config = @cfn_client = @cfn_resource = nil
+      CachedStack.stack_cache.clear
     end
 
     # Exit with status code = 1 when raising a Thor::Error
@@ -131,6 +132,7 @@ module CfnFlow
   end
 end
 
+require 'cfn_flow/cached_stack'
 require 'cfn_flow/template'
 require 'cfn_flow/git'
 require 'cfn_flow/event_presenter'
