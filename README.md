@@ -184,6 +184,21 @@ stack:
       # Your parameters, e.g.:
       vpcid: vpc-1234
       ami: ami-abcd
+
+      ##
+      # Use outputs from other stacks
+
+      # This set the `load_balancer` parameter to the value of the
+      # `elbname` output of `my-elb-stack`
+      load_balancer:
+        stack: my-elb-stack
+        output: elbname
+
+      # If you don't specify the output name, it's assumed to be same
+      # as the parameter key:
+      ssh_security_group:
+        stack: my-bastion-stack
+
     disable_rollback: true,
     timeout_in_minutes: 1,
     notification_arns: ["NotificationARN"],
@@ -227,6 +242,23 @@ stack:
   ...
   parameters:
     git_sha: <%= `git rev-parse --verify HEAD`.chomp %>
+```
+
+#### Use stack outputs as parameters
+`cfn-flow` lets you easily reference stack outputs as parameters for new stacks.
+
+```yaml
+# cfn-flow.yml
+stack:
+  parameters:
+    # Set my-param to the `my-param` output of `another-stack`
+    my-param:
+      stack: another-stack
+
+    # Set my-param to the `my-output` output of `another-stack`
+    my-param:
+      stack: another-stack
+      output: my-output
 ```
 
 ## Usage

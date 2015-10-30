@@ -39,43 +39,11 @@ module CfnFlow
       unless config['stack'].is_a? Hash
         raise Thor::Error.new("No stack defined in #{config_path}. Add 'stack: ...'.")
       end
+      params = StackParams.expanded(config['stack'])
 
-      # Dup & symbolize keys
-      params = config['stack'].map{|k,v| [k.to_sym, v]}.to_h
-
-      # Expand params
-      if params[:parameters].is_a? Hash
-        expanded_params = params[:parameters].map do |key,value|
-          { parameter_key: key, parameter_value: value }
-        end
-        params[:parameters] = expanded_params
-      end
-
-      # Expand tags
-      if params[:tags].is_a? Hash
-        tags = params[:tags].map do |key, value|
-          {key: key, value: value}
-        end
-
-        params[:tags] = tags
-      end
-
-      # Append CfnFlow tags
-      params[:tags] ||= []
-      params[:tags] << { key: 'CfnFlowService', value: service }
-      params[:tags] << { key: 'CfnFlowEnvironment', value: environment }
-
-      # Expand template body
-      if params[:template_body].is_a? String
-        begin
-          body = CfnFlow::Template.new(params[:template_body]).to_json
-          params[:template_body] = body
-        rescue CfnFlow::Template::Error
-          # Do nothing
-        end
-      end
-
-      params
+      params.
+        add_tag('CfnFlowService' => service).
+        add_tag('CfnFlowEnvironment' => environment)
     end
 
     def template_s3_bucket
@@ -113,6 +81,7 @@ module CfnFlow
     # Clear aws sdk clients & config (for tests)
     def clear!
       @config = @cfn_client = @cfn_resource = nil
+      CachedStack.stack_cache.clear
     end
 
     # Exit with status code = 1 when raising a Thor::Error
@@ -131,6 +100,8 @@ module CfnFlow
   end
 end
 
+require 'cfn_flow/cached_stack'
+require 'cfn_flow/stack_params'
 require 'cfn_flow/template'
 require 'cfn_flow/git'
 require 'cfn_flow/event_presenter'

@@ -50,22 +50,9 @@ describe 'CfnFlow' do
       error.message.must_match 'No stack defined'
     end
 
-    it('expands parameters') do
-      stack = {'parameters' => {'ami' => 'ami-12345' } }
-      subject.instance_variable_set(:@config, {'service' => 'myservice', 'stack' => stack})
-      subject.stack_params('env')[:parameters].must_equal [ { parameter_key: 'ami', parameter_value: 'ami-12345' } ]
-    end
-
-    it('expands tags') do
-      stack = {'tags' => {'Deployer' => 'Aaron' } }
-      subject.instance_variable_set(:@config, {'service' => 'myservice', 'stack' => stack})
-      expected = [
-        { key: 'Deployer', value: 'Aaron' },
-        { key: 'CfnFlowService', value: 'myservice' },
-        { key: 'CfnFlowEnvironment', value: 'env' }
-      ]
-
-      subject.stack_params('env')[:tags].must_equal expected
+    it('returns a StackParams hash') do
+      subject.instance_variable_set(:@config, {'service' => 'myservice', 'stack' => {}})
+      subject.stack_params('env').must_be_kind_of CfnFlow::StackParams
     end
 
     it 'appends CfnFlow tags' do
@@ -77,14 +64,6 @@ describe 'CfnFlow' do
 
       subject.stack_params('env')[:tags].must_equal expected
     end
-
-    it 'expands template body' do
-      template_path = 'spec/data/sqs.template'
-      stack = {'template_body' => template_path}
-      subject.instance_variable_set(:@config, {'service' => 'myservice', 'stack' => stack})
-      subject.stack_params('env')[:template_body].must_equal CfnFlow::Template.new(template_path).to_json
-    end
-
   end
 
   describe '.template_s3_bucket' do
