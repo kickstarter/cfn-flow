@@ -12,8 +12,7 @@ module CfnFlow
     end
 
     def with_symbolized_keys
-      self.inject(StackParams.new) do |accum, pair|
-        key, value = pair
+      self.reduce(StackParams.new) do |accum, (key, value)|
         accum.merge(key.to_sym => value)
       end
     end
