@@ -68,6 +68,8 @@ module CfnFlow
       say "Polling for events..."
       invoke :events, [stack.name], ['--poll']
 
+      say "Stack Outputs"
+      invoke :outputs, [stack.name]
 
       # Optionally cleanup other stacks in this environment
       if options[:cleanup]
@@ -148,6 +150,23 @@ module CfnFlow
       say CfnFlow::VERSION
     end
     map %w(-v --version) => :version
+
+    ##
+    # Outputs command
+    desc "outputs STACK", "List outputs for STACK"
+    method_option 'no-header', type: :boolean, desc: 'Do not print column headers'
+    def outputs(name)
+      stack = find_stack_in_service(name)
+      outputs = stack.outputs
+      return if outputs.empty?
+
+      table_header = options['no-header'] ? [] : [['KEY',  'VALUE', 'DESCRIPTION']]
+      table_data = outputs.map do |s|
+        [ s.output_key, s.output_value, s.description ]
+      end
+
+      print_table(table_header + table_data)
+    end
 
     private
     def find_stack_in_service(name)
