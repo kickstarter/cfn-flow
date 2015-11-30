@@ -150,9 +150,10 @@ describe 'CfnFlow::CLI' do
     it 'can cleanup' do
 
       # Stubbing hacks alert!
-      # The first time we call :describe_stacks, return the stack we launch.
-      # The second time, we're loading 'another-stack' to clean it up
+      # The first two times we call :describe_stacks, return the stack we launch.
+      # The third time, we're loading 'another-stack' to clean it up
       stack_stubs = [
+        { stacks: [ stub_stack_data(stack_name: 'cfn-flow-spec-stack') ] },
         { stacks: [ stub_stack_data(stack_name: 'cfn-flow-spec-stack') ] },
         { stacks: [ stub_stack_data(stack_name: 'another-stack') ] }
       ]
@@ -257,11 +258,18 @@ describe 'CfnFlow::CLI' do
         err.must_equal ''
       end
 
-      it 'handles --json option' do
-        out, _ = capture_io { cli.start [:show, 'mystack', '--json'] }
+      it 'handles json format' do
+        out, _ = capture_io { cli.start [:show, 'mystack', '--format=json'] }
         expected = MultiJson.dump(CfnFlow.cfn_resource.stack('mystack').data.to_hash, pretty: true) + "\n"
         out.must_equal expected
       end
+
+      it 'handles outputs-table format' do
+        out, _ = capture_io { cli.start [:show, 'mystack', '--format=outputs-table'] }
+        out.must_match(/KEY\s+VALUE\s+DESCRIPTION/)
+        out.must_match(/mykey\s+myvalue\s+My Output/)
+      end
+
     end
 
     it 'returns an error with missing stacks' do
