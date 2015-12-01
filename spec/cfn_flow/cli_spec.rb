@@ -264,12 +264,24 @@ describe 'CfnFlow::CLI' do
         out.must_equal expected
       end
 
-      it 'handles outputs-table format' do
-        out, _ = capture_io { cli.start [:show, 'mystack', '--format=outputs-table'] }
-        out.must_match(/KEY\s+VALUE\s+DESCRIPTION/)
-        out.must_match(/mykey\s+myvalue\s+My Output/)
-      end
+      describe 'outputs-table format' do
+        it 'handles shows a table when there are events' do
+          out, _ = capture_io { cli.start [:show, 'mystack', '--format=outputs-table'] }
+          out.must_match(/KEY\s+VALUE\s+DESCRIPTION/)
+          out.must_match(/mykey\s+myvalue\s+My Output/)
+        end
 
+        it 'handles no events' do
+          Aws.config[:cloudformation]= {
+            stub_responses: {
+            describe_stacks: { stacks: [ stub_stack_data(outputs: nil) ] }
+            }
+          }
+          out, _ = capture_io { cli.start [:show, 'mystack', '--format=outputs-table'] }
+          out.must_match "No stack outputs to show."
+
+        end
+      end
     end
 
     it 'returns an error with missing stacks' do

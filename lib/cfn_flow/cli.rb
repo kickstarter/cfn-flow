@@ -68,7 +68,7 @@ module CfnFlow
       say "Polling for events..."
       invoke :events, [stack.name], ['--poll']
 
-      say "Stack Outputs"
+      say "Stack Outputs:"
       invoke :show, [stack.name], ['--format=outputs-table']
 
       # Optionally cleanup other stacks in this environment
@@ -113,12 +113,17 @@ module CfnFlow
         'json' =>          ->(stack) { say MultiJson.dump(stack.data.to_hash, pretty: true) },
         'yaml' =>          ->(stack) { say stack.data.to_hash.to_yaml },
         'outputs-table' => ->(stack) do
-          table_header = [['KEY',  'VALUE', 'DESCRIPTION']]
-          table_data = stack.outputs.to_a.map do |s|
-            [ s.output_key, s.output_value, s.description ]
-          end
+          outputs = stack.outputs.to_a
+          if outputs.any?
+            table_header = [['KEY',  'VALUE', 'DESCRIPTION']]
+            table_data = outputs.map do |s|
+              [ s.output_key, s.output_value, s.description ]
+            end
 
-          print_table(table_header + table_data)
+            print_table(table_header + table_data)
+          else
+            say "No stack outputs to show."
+          end
         end
       }
       stack = find_stack_in_service(name)
