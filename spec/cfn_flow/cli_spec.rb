@@ -173,6 +173,56 @@ describe 'CfnFlow::CLI' do
 
   end
 
+  describe '#update' do
+    it 'fails with no args' do
+      out, err = capture_io { cli.start [:update] }
+      out.must_equal ''
+      err.must_match(/ERROR.+no arguments/)
+    end
+
+    it 'returns an error when stack is not in service' do
+      stack_data = stub_stack_data
+      stack_data[:tags][0][:value] = 'none-such-service'
+      Aws.config[:cloudformation]= {
+        stub_responses: {
+          describe_stacks: { stacks: [ stack_data ] }
+        }
+      }
+      out, err = capture_io { cli.start [:update, 'production', 'none-such-stack'] }
+      out.must_equal ''
+      err.must_match "not tagged for service #{CfnFlow.service}"
+    end
+
+    it 'returns an error when stack environment does not match' do
+      stack_data = stub_stack_data
+      Aws.config[:cloudformation]= {
+        stub_responses: {
+          describe_stacks: { stacks: [ stack_data ] }
+        }
+      }
+      out, err = capture_io { cli.start [:update, 'none-such-env', 'mystack'] }
+      out.must_equal ''
+      err.must_match "not tagged for environment none-such-env"
+    end
+
+    it 'succeeds' do
+      stack_name = CfnFlow.config['stack']['stack_name']
+
+      Aws.config[:cloudformation]= {
+        stub_responses: {
+          describe_stacks: { stacks: [ stub_stack_data(stack_name: stack_name, stack_status: 'UPDATE_COMPLETE') ] },
+          describe_stack_events: { stack_events: [ stub_event_data(resource_status: 'UPDATE_COMPLETE') ] },
+        }
+      }
+      out, err = capture_io { cli.start [:update, 'production', stack_name] }
+
+      out.must_match "Updating stack #{stack_name}"
+      out.must_match "Polling for events..."
+      out.must_match "UPDATE_COMPLETE"
+      err.must_equal ''
+    end
+  end
+
   describe '#list' do
     it 'has no output with no stacks' do
       out, err = capture_io { cli.start [:list] }
