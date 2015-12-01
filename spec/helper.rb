@@ -50,7 +50,8 @@ class Minitest::Spec
       tags: [
         {key: 'CfnFlowService', value: CfnFlow.service},
         {key: 'CfnFlowEnvironment', value: 'production'}
-      ]
+      ],
+      outputs: [ output_key: 'mykey', output_value: 'myvalue', description: 'My Output' ]
     }.merge(attrs)
   end
 
