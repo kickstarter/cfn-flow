@@ -83,6 +83,41 @@ module CfnFlow
       end
     end
 
+    desc 'update ENVIRONMENT STACK', 'Updates a stack (use sparingly for mutable infrastructure)'
+    def update(environment, name)
+      # Export environment as an env var so it can be interpolated in config
+      ENV['CFN_FLOW_ENVIRONMENT'] = environment
+
+      stack = find_stack_in_service(name)
+
+      # Check that environment matches
+      unless stack.tags.any?{|tag| tag.key == 'CfnFlowEnvironment' && tag.value == environment }
+        raise Thor::Error.new "Stack #{name} is not tagged for environment #{environment}"
+      end
+
+      begin
+        params = CfnFlow.stack_params(environment)
+        params.delete(:tags) # No allowed for Stack#update
+        stack.update(params)
+      rescue Aws::CloudFormation::Errors::ValidationError => e
+        raise Thor::Error.new(e.message)
+      end
+
+      say "Updating stack #{stack.name}"
+
+      # NB: there's a potential race condition where polling for events would
+      # see the last complete state before the stack has a chance to begin updating.
+      # Consider putting a sleep, wait_for an UPDATE_IN_PROGRESS state beforehand,
+      # or look for events newer than the last event before updating.
+
+      # Invoke events
+      say "Polling for events..."
+      invoke :events, [stack.name], ['--poll']
+
+      say "Stack Outputs:"
+      invoke :show, [stack.name], ['--format=outputs-table']
+    end
+
     desc 'list [ENVIRONMENT]', 'List running stacks in all environments, or ENVIRONMENT'
     method_option 'no-header', type: :boolean, desc: 'Do not print column headers'
     def list(environment=nil)
