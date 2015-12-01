@@ -113,6 +113,9 @@ module CfnFlow
       # Invoke events
       say "Polling for events..."
       invoke :events, [stack.name], ['--poll']
+
+      say "Stack Outputs:"
+      invoke :show, [stack.name], ['--format=outputs-table']
     end
 
     desc 'list [ENVIRONMENT]', 'List running stacks in all environments, or ENVIRONMENT'

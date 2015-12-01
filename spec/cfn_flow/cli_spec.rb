@@ -220,6 +220,7 @@ describe 'CfnFlow::CLI' do
       out.must_match "Updating stack #{stack_name}"
       out.must_match "Polling for events..."
       out.must_match "UPDATE_COMPLETE"
+      out.must_match "Stack Outputs:"
       err.must_equal ''
     end
   end
