@@ -37,7 +37,7 @@ It provides a *simple*, *standard*, and *flexible* process for using CloudFormat
 
 ## Opinions
 
-`cfn-flow` introduces a consist, convenient workflow that encourages good template organization
+`cfn-flow` introduces a consistent, convenient workflow that encourages good template organization
 and deploy practices.
 
 1. *Optimize for happiness.* The workflow should be easy & enjoyable to use.
