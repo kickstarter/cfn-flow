@@ -142,10 +142,14 @@ module CfnFlow
       if options[:poll]
         # Display events until we're COMPLETE/FAILED
         delay = (ENV['CFN_FLOW_EVENT_POLL_INTERVAL'] || 2).to_i
-        stack.wait_until(max_attempts: -1, delay: delay) do |s|
-          EventPresenter.present(s.events) {|p| say p }
-          # Wait until the stack status ends with _FAILED or _COMPLETE
-          s.stack_status.match(/_(FAILED|COMPLETE)$/)
+        begin
+          stack.wait_until(max_attempts: -1, delay: delay) do |s|
+            EventPresenter.present(s.events) {|p| say p }
+            # Wait until the stack status ends with _FAILED or _COMPLETE
+            s.stack_status.match(/_(FAILED|COMPLETE)$/)
+          end
+        rescue Aws::CloudFormation::Errors::ValidationError
+          # The stack was deleted. Keep on trucking.
         end
       end
     end
@@ -157,6 +161,9 @@ module CfnFlow
       if options[:force] || yes?("Are you sure you want to shut down #{name}?", :red)
         stack.delete
         say "Deleted stack #{name}"
+
+        say "Polling for events..."
+        invoke :events, [stack.name], ['--poll']
       end
     end
 

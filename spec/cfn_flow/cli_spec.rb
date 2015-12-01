@@ -371,14 +371,18 @@ describe 'CfnFlow::CLI' do
     describe 'with a stack' do
       before do
         Aws.config[:cloudformation] = {
-          stub_responses: { describe_stacks: { stacks: [ stub_stack_data ] } }
+          stub_responses: {
+            describe_stacks: { stacks: [ stub_stack_data ] },
+            describe_stack_events: { stack_events: [ stub_event_data ] }
+          }
         }
       end
 
       it 'deletes the stack' do
         Thor::LineEditor.stub :readline, "yes" do
           out, err = capture_io { cli.start [:delete, 'mystack'] }
-          out.must_equal "Deleted stack mystack\n"
+          out.must_match "Deleted stack mystack"
+          out.must_match "Polling for events..."
           err.must_equal ''
         end
       end
@@ -393,7 +397,7 @@ describe 'CfnFlow::CLI' do
 
       it 'does not ask when --force is set' do
           out, err = capture_io { cli.start [:delete, '--force', 'mystack'] }
-          out.must_equal "Deleted stack mystack\n"
+          out.must_match "Deleted stack mystack"
           err.must_equal ''
       end
     end
