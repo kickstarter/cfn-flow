@@ -401,7 +401,7 @@ Publish templates to S3 with immutable release names, or overwrite "dev names"
 for quicker testing.
 
 **Note:** Publishing to S3 is only needed if you want to use [nested stack resources](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-stack.html),
- (that is, stacks that lainclude other stacks).
+ (that is, stacks that include other stacks).
 
 ```
 # For example:
