@@ -110,6 +110,10 @@ describe 'CfnFlow::Template' do
       template.local_data.must_be_kind_of Hash
     end
 
+    it 'should parse ERB' do
+      CfnFlow::Template.new('spec/data/erb-test.yml').local_data.must_equal({'foo' => 3})
+    end
+
     it 'should raise an error on invalid json data' do
       -> { CfnFlow::Template.new('spec/data/invalid.json').local_data }.must_raise CfnFlow::Template::Error
     end

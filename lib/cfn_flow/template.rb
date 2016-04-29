@@ -49,9 +49,10 @@ module CfnFlow
     end
 
     def local_data
+      data = ERB.new(File.read(local_path)).result(binding)
       # We *could* load JSON as YAML, but that would generate confusing errors
       # in the case of a JSON syntax error.
-      @local_data ||= yaml? ? YAML.load_file(local_path) : MultiJson.load(File.read(local_path))
+      @local_data ||= yaml? ? YAML.load(data) : MultiJson.load(data)
     rescue Exception => error
       # Tag & re-raise any error
       error.extend(CfnFlow::Template::Error)
