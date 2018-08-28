@@ -1,6 +1,8 @@
 # cfn-flow
 `cfn-flow` is a command-line tool for developing [AWS CloudFormation](https://aws.amazon.com/cloudformation/) templates and deploying stacks.
 
+```> **Note:** This repository uses a CircleCI 1.0 configuration file (deprecated as of August 31, 2018), and CI flows will not run on this project. You can see [more details here](https://github.com/kickstarter/circleci-migration), and can request help migrating this project if necessary from the @kickstarter/infrastructure team.```
+
 It provides a *simple*, *standard*, and *flexible* process for using CloudFormation, ideal for DevOps-style organizations.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
