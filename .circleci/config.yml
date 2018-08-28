@@ -3,8 +3,6 @@ jobs:
   test_223:
     docker:
       - image: ruby:2.2.5
-        environment:
-          RACK_ENV: 'test'
     steps:
       - checkout
       - restore_cache:
@@ -24,8 +22,6 @@ jobs:
   test_230:
     docker:
       - image: ruby:2.3.0
-        environment:
-          RACK_ENV: 'test'
     steps:
       - checkout
       - restore_cache:
