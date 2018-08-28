@@ -1,0 +1,47 @@
+version: 2
+jobs:
+  test_223:
+    docker:
+      - image: ruby:2.2.5
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-bundle-225-{{ checksum "cfn-flow.gemspec" }}
+            - v1-bundle-225
+      - run:
+          name: Get packages
+          command: "bundle check --path=vendor/bundle || bundle install --path vendor/bundle"
+      - save_cache:
+          key: v1-bundle-225-{{ checksum "cfn-flow.gemspec" }}
+          paths:
+            - ./vendor/bundle
+      - run:
+          name: Run tests
+          command: bundle exec rake test
+  test_230:
+    docker:
+      - image: ruby:2.3.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-bundle-230-{{ checksum "cfn-flow.gemspec" }}
+            - v1-bundle-230
+      - run:
+          name: Get packages
+          command: "bundle check --path=vendor/bundle || bundle install --path vendor/bundle"
+      - save_cache:
+          key: v1-bundle-230-{{ checksum "cfn-flow.gemspec" }}
+          paths:
+            - ./vendor/bundle
+      - run:
+          name: Run tests
+          command: bundle exec rake test
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test_223
+      - test_230
